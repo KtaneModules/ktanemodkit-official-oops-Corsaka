@@ -1,0 +1,129 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>Bad Bones — Keep Talking and Nobody Explodes Module</title>
+    <meta name="viewport" content="initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="stylesheet" type="text/css" href="css/font.css">
+    <script src="js/ktane-utils.js"></script>
+</head>
+<body>
+    <div class="section">
+        <div class="page page-bg-01">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Bad Bones</span>
+            </div>
+            <div class="page-content">
+                <img src="img/Component/badbones.svg" class="diagram">
+                <h2>On the Subject of Bad Bones</h2>
+                <p class="flavour-text">A skull on a gearstick stares back at you ominously.</p>
+
+                <p>This module consists of a metallic skull with one blue and one red eye attached to a gearstick, and four sets of bones positioned as Roman numerals.</p>
+                <p>The skull can be dragged in any direction. Releasing the skull will cause it to return to the center.</p>
+                <p>
+                    To input a value, drag the skull to the relevant set of bones and release it above them. A noise will play corresponding to that set of bones.
+                    If no noise plays, the input was not submitted (or your game volume is too low).
+                </p>
+                <p>Both eyes can be pressed. The blue eye will submit the current sequence of inputs. The red eye will delete all inputs.</p>
+                <p>Use the information below to find the correct sequence.</p>
+
+                <h3>Determining The Sequence</h3>
+
+                <table class="diagram">
+                    <tbody>
+                        <tr>
+                            <th>Position</th>
+                            <th>Result</th>
+                        </tr>
+                        <tr>
+                            <td>Top</td>
+                            <td>3</td>
+                        </tr>
+                        <tr>
+                            <td>Left</td>
+                            <td>1</td>
+                        </tr>
+                        <tr>
+                            <td>Bottom</td>
+                            <td>2</td>
+                        </tr>
+                        <tr>
+                            <td>Right</td>
+                            <td>4</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>
+                    Locate the position of the single bone on the base of the module. Find its corresponding number in the table to the right.
+                    This is the first number of your sequence.
+                </p>
+                <p>
+                    Count the number of indicators on the bomb. Multiply this by the number of port plates. This is the length of your sequence, L.
+                    If this is zero, submit an empty sequence.
+                </p>
+                <p></p>
+            </div>
+            <div class="page-footer relative-footer">Page 1 of XXX</div>
+        </div>
+        <div class="page page-bg-02">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Bad Bones</span>
+            </div>
+            <div class="page-content">
+                <h3>Example Tables</h3>
+                <table>
+                    <tr>
+                        <th>Part of table</th>
+                        <th>How to make</th>
+                    </tr>
+                    <tr>
+                        <th>Rows and Columns</th>
+                        <td>
+                            Use <code>&lt;tr&gt;&lt;/tr&gt;</code> for rows.
+                            Use <code>&lt;th&gt;&lt;/th&gt;</code> or <code>&lt;td&gt;&lt;/td&gt;</code> for columns within rows (see below).
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Headings (left column and top row, in most cases)</th>
+                        <td>Use <code>&lt;th&gt;&lt;/th&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <th>Cells</th>
+                        <td>Use <code>&lt;td&gt;&lt;/td&gt;</code></td>
+                    </tr>
+                    <tr>
+                        <th rowspan="2">Merged Cells</th>
+                        <td>Use <code>rowspan="_"</code> for merging cells vertically.</td>
+                    </tr>
+                    <tr>
+                        <td>Use <code>colspan="_"</code> for merging cells horizontally.</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">Note that merged cells created in other rows are skipped in affected rows (see HTML for above row).</td>
+                    </tr>
+                </table>
+                <p>If the table contents are not wide enough, tables are centered by default due to the <code>table</code> rule of the first <code>&lt;style&gt;</code> block (see above code).</p>
+                <table class="center">
+                    <tr>
+                        <th>Cell 1</th>
+                        <td>Cell 2</td>
+                    </tr>
+                    <tr>
+                        <th>Cell 3</th>
+                        <td>Cell 4</td>
+                    </tr>
+                </table>
+
+                <h3>Making the PDF</h3>
+                <p>To make a PDF version of your manual, open the HTML file in Google Chrome and open the "Print" dialog (Usually <kbd>CTRL</kbd>+<kbd>P</kbd>) and choose "Save as PDF" as the destination.</p>
+            </div>
+            <div class="page-footer relative-footer">Page 2 of XXX</div>
+        </div>
+    </div>
+</body>
+</html>
