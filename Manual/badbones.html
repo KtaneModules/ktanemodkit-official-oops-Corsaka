@@ -22,30 +22,52 @@
                 <h2>On the Subject of Bad Bones</h2>
                 <p class="flavour-text">A skull on a gearstick stares back at you ominously.</p>
 
-                <p>This module consists of a metallic skull with one blue and one red eye attached to a gearstick, and four sets of bones positioned as Roman numerals.</p>
-                <p>The skull can be dragged in any direction. Releasing the skull will cause it to return to the center.</p>
                 <p>
-                    To input a value, drag the skull to the relevant set of bones and release it above them. A noise will play corresponding to that set of bones.
-                    If no noise plays, the input was not submitted.<br>
-                    A deaf version of this module can be accessed by pressing the red eye three times, then the blue eye once. An alternative manual is available for this version.
+                    This module consists of a metallic skull with one blue and
+                    one red eye attached to a gearstick, as well as four sets of
+                    bones positioned as Roman numerals.
                 </p>
-                <p>Both eyes can be pressed. The blue eye will submit the current sequence of inputs. The red eye will delete all inputs.</p>
+                <p>
+                    The skull can be dragged in any direction. Releasing the
+                    skull will cause it to return to the center.
+                </p>
+                <p>
+                    To input a value, drag the skull to the relevant set of bones and release it above
+                    them. A noise will play corresponding to that set of bones. If no noise plays, the
+                    input was not submitted.<br>
+                    A deaf version of this module can be accessed by pressing the red eye <b>three</b> times,
+                    then the blue eye once. An alternative manual is available for this version.
+                </p>
+                <p>
+                    Both eyes can be pressed. The blue eye will submit the current sequence of
+                    inputs. The red eye will delete all inputs.
+                </p>
                 <p>Use the information below to find the correct sequence.</p>
 
                 <h3>B-B-B-B-B-B-B-Bad</h3>
                 <p>
-                    One of the bone groups on the bomb contains a <b>Bad Bone</b>. Entering a sequence containing a Bad Bone will result in a strike.
-                    If your sequence contains a Bad Bone, it should be replaced with the corresponding Good Bone.
+                    One of the bone groups on the bomb contains a <b>Bad Bone</b>. Entering a sequence
+                    containing a Bad Bone will result in a strike. If your sequence contains a Bad
+                    Bone, it should be replaced with the corresponding Good Bone.
                 </p>
                 <h4>Finding The Bad Bone</h4>
-                <p>When releasing the skull over the bones, two bones will play the same note. These are the Good and Bad Bones.</p>
                 <p>
-                    Add up the numbers (ignore letters) in your serial number. If the result is odd, the lower-value bone is the Bad Bone.
-                    Otherwise, the higher-value bone is the Bad Bone.<br>
+                    When releasing the skull over the bones, two bones will play the same note.
+                    These are the Good and Bad Bones.
+                </p>
+                <p>
+                    If the blue eye is on the left, the lower-value bone is the Bad Bone. Otherwise,
+                    the higher-value bone is the Bad Bone.<br>
                     The other bone out of the pair is the Good Bone.
                 </p>
+                <h3>Sequence Length</h3>
+                <p>
+                    Add up the numbers (ignore letters) in your serial number. This is the length of
+                    your sequence. If this value is 0, instead use the number of <b>solved</b> modules on
+                    the bomb as your sequence length.
+                </p>
             </div>
-            <div class="page-footer relative-footer">Page 1 of 2</div>
+            <div class="page-footer relative-footer">Page 1 of 3</div>
         </div>
         <div class="page page-bg-02">
             <div class="page-header">
@@ -53,54 +75,94 @@
                 <span class="page-header-section-title">Bad Bones</span>
             </div>
             <div class="page-content">
-                <h3>Example Tables</h3>
-                <table>
-                    <tr>
-                        <th>Part of table</th>
-                        <th>How to make</th>
-                    </tr>
-                    <tr>
-                        <th>Rows and Columns</th>
-                        <td>
-                            Use <code>&lt;tr&gt;&lt;/tr&gt;</code> for rows.
-                            Use <code>&lt;th&gt;&lt;/th&gt;</code> or <code>&lt;td&gt;&lt;/td&gt;</code> for columns within rows (see below).
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Headings (left column and top row, in most cases)</th>
-                        <td>Use <code>&lt;th&gt;&lt;/th&gt;</code></td>
-                    </tr>
-                    <tr>
-                        <th>Cells</th>
-                        <td>Use <code>&lt;td&gt;&lt;/td&gt;</code></td>
-                    </tr>
-                    <tr>
-                        <th rowspan="2">Merged Cells</th>
-                        <td>Use <code>rowspan="_"</code> for merging cells vertically.</td>
-                    </tr>
-                    <tr>
-                        <td>Use <code>colspan="_"</code> for merging cells horizontally.</td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">Note that merged cells created in other rows are skipped in affected rows (see HTML for above row).</td>
-                    </tr>
+                <h3>Determining the Sequence</h3>
+                <p>
+                    Move down the table, stopping at the <b>first</b> condition that matches. Follow the
+                    first priority rule for this condition.<br>
+                    Repeat the process, <b>ignoring</b> any conditions that have been fulfilled before
+                    (excluding "Otherwise"), following the next priority rule for each condition.
+                </p>
+                <p>In cases of conflict, higher priority rules override those with lower priority.</p>
+                <table style="border:0px" width="100%">
+                    <tbody>
+                        <tr>
+                            <td style="border:0px"></td>
+                            <th colspan="4">Priority</th>
+                        </tr>
+                        <tr>
+                            <th>Condition</th>
+                            <th>First</th>
+                            <th>Second</th>
+                            <th>Third</th>
+                            <th width="20%">Fourth</th>
+                        </tr>
+                        <tr>
+                            <th>Multiple Bad Bones modules on the bomb</th>
+                            <td>Every 3rd digit is a 3</td>
+                            <td>Every 4th digit is a 1</td>
+                            <td>Replace every 2 so far with a 4</td>
+                            <td>Every remaining digit is a 4</td>
+                        </tr>
+                        <tr>
+                            <th>The Bad Bone<br>is a 4</th>
+                            <td>Sequence begins and ends with 4</td>
+                            <td>Every 2nd digit is a 3</td>
+                            <td>Replace the 3rd digit with a 1</td>
+                            <td>Every remaining digit is a 2</td>
+                        </tr>
+                        <tr>
+                            <th>Serial number contains a vowel</th>
+                            <td>Replace every future 2 with a 3</td>
+                            <td>Every 5th digit is a 4</td>
+                            <td>Every prime digit is a 1</td>
+                            <td>Every remaining digit is a 3</td>
+                        </tr>
+                        <tr>
+                            <th>The Good Bone value exceeds the number of port plates</th>
+                            <td>Repeat "1234" until end of sequence</td>
+                            <td>Every odd digit is a 3</td>
+                            <td>Every 4th digit is a 2</td>
+                            <td>Every remaining digit is the value of the Good Bone</td>
+                        </tr>
+                        <tr>
+                            <th>Sequence contains a 2</th>
+                            <td>Every 3rd digit is a 4</td>
+                            <td>Replace every future 3 with a 2</td>
+                            <td>Replace the final digit with a 1</td>
+                            <td>Every remaining digit is a 3</td>
+                        </tr>
+                        <tr>
+                            <th>Sequence does not contain a 1</th>
+                            <td>Every 2nd digit is a 1</td>
+                            <td>Replace every 3 so far with a 4</td>
+                            <td>Replace the first and last 4 with a 2</td>
+                            <td>Every remaining digit is a 1</td>
+                        </tr>
+                        <tr>
+                            <th>Otherwise</th>
+                            <td>Every 4th digit is a 4</td>
+                            <td>Every 3rd digit is a 3</td>
+                            <td>Every 2nd digit is a 2</td>
+                            <td>Every remaining digit is a 1</td>
+                        </tr>
+                    </tbody>
                 </table>
-                <p>If the table contents are not wide enough, tables are centered by default due to the <code>table</code> rule of the first <code>&lt;style&gt;</code> block (see above code).</p>
-                <table class="center">
-                    <tr>
-                        <th>Cell 1</th>
-                        <td>Cell 2</td>
-                    </tr>
-                    <tr>
-                        <th>Cell 3</th>
-                        <td>Cell 4</td>
-                    </tr>
-                </table>
-
-                <h3>Making the PDF</h3>
-                <p>To make a PDF version of your manual, open the HTML file in Google Chrome and open the "Print" dialog (Usually <kbd>CTRL</kbd>+<kbd>P</kbd>) and choose "Save as PDF" as the destination.</p>
             </div>
-            <div class="page-footer relative-footer">Page 2 of 2</div>
+            <div class="page-footer relative-footer">Page 2 of 3</div>
+        </div>
+        <div class="page page-bg-03">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Bad Bones</span>
+            </div>
+            <div class="page-content">
+                <p>
+                    However, if a BOB indicator is present on the bomb, and the sequence is of length
+                    3, submit a sequence of the lowest note, the middle note, and the highest note.
+                    Then pat yourself on the back for realising what you've played.
+                </p>
+            </div>
+            <div class="page-footer relative-footer">Page 3 of 3</div>
         </div>
     </div>
 </body>
