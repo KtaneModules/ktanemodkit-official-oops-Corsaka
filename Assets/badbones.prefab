@@ -301,6 +301,7 @@ GameObject:
   - component: {fileID: 114120288145430956}
   - component: {fileID: 114274827591628584}
   - component: {fileID: 114715617355711622}
+  - component: {fileID: 114222404409657250}
   m_Layer: 0
   m_Name: badbones
   m_TagString: Untagged
@@ -1552,6 +1553,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShaderNames:
   - Sprites/Diffuse
+--- !u!114 &114222404409657250
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1482089307383810}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae2c7272166686a4c9ba3960597c4fe8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _editorRuleSeed: 1
+  submit: {fileID: 114528425103306220}
+  reset: {fileID: 114369137650870628}
+  red: {fileID: 1504551893468556}
+  blue: {fileID: 1742284410934056}
+  skull: {fileID: 114865880124277286}
+  skullPivot: {fileID: 1273606288475326}
+  one: {fileID: 1238163311879126}
+  two: {fileID: 1433991499140310}
+  three: {fileID: 1642162834836034}
+  four: {fileID: 1148825765223902}
 --- !u!114 &114274827591628584
 MonoBehaviour:
   m_ObjectHideFlags: 1

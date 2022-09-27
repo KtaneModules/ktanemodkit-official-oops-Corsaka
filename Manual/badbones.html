@@ -64,7 +64,7 @@
                 <p>
                     Add up the numbers (ignore letters) in your serial number. This is the length of
                     your sequence. If this value is 0, instead use the number of <b>solved</b> modules on
-                    the bomb as your sequence length.
+                    the bomb as your sequence length, <b>plus 1</b>.
                 </p>
             </div>
             <div class="page-footer relative-footer">Page 1 of 3</div>
@@ -82,7 +82,7 @@
                     Repeat the process, <b>ignoring</b> any conditions that have been fulfilled before
                     (excluding "Otherwise"), following the next priority rule for each condition.
                 </p>
-                <p>In cases of conflict, higher priority rules override those with lower priority.</p>
+                <p>In cases of conflict, higher priority rules override those with lower priority. Higher priority rules are also followed first.</p>
                 <table style="border:0px" width="100%">
                     <tbody>
                         <tr>
@@ -92,8 +92,8 @@
                         <tr>
                             <th>Condition</th>
                             <th>First</th>
-                            <th>Second</th>
-                            <th>Third</th>
+                            <th width="18%">Second</th>
+                            <th width="19%">Third</th>
                             <th width="20%">Fourth</th>
                         </tr>
                         <tr>
@@ -106,7 +106,7 @@
                         <tr>
                             <th>The Bad Bone<br>is a 4</th>
                             <td>Sequence begins and ends with 4</td>
-                            <td>Every 2nd digit is a 3</td>
+                            <td>Every 2nd digit is a 2</td>
                             <td>Replace the 3rd digit with a 1</td>
                             <td>Every remaining digit is a 2</td>
                         </tr>
@@ -114,7 +114,7 @@
                             <th>Serial number contains a vowel</th>
                             <td>Replace every future 2 with a 3</td>
                             <td>Every 5th digit is a 4</td>
-                            <td>Every prime digit is a 1</td>
+                            <td>Every prime (including 1) digit is a 1</td>
                             <td>Every remaining digit is a 3</td>
                         </tr>
                         <tr>
@@ -127,15 +127,15 @@
                         <tr>
                             <th>Sequence contains a 2</th>
                             <td>Every 3rd digit is a 4</td>
-                            <td>Replace every future 3 with a 2</td>
+                            <td>Replace every future 3 with a 4</td>
                             <td>Replace the final digit with a 1</td>
                             <td>Every remaining digit is a 3</td>
                         </tr>
                         <tr>
                             <th>Sequence does not contain a 1</th>
                             <td>Every 2nd digit is a 1</td>
-                            <td>Replace every 3 so far with a 4</td>
-                            <td>Replace the first and last 4 with a 2</td>
+                            <td>Replace every 1 so far with a 4</td>
+                            <td>Replace the first 4 with a 2</td>
                             <td>Every remaining digit is a 1</td>
                         </tr>
                         <tr>
