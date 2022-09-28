@@ -39,10 +39,6 @@ public class badbonesScript : ModuleScript {
 
 	//bombgen
 	private void Start () {
-		foreach(AudioClip clip in audioClips)
-		{
-			Log(clip.length);
-		}
 		//fix lighting bug
 		float scalar = transform.lossyScale.x;
 		topBlue.range *= scalar;
@@ -412,10 +408,10 @@ public class badbonesScript : ModuleScript {
 						{
 							if(buildSeq[i] == 0) //check that it's not already assigned
 							{
-								buildSeq[i] = 3; //replace with a 3
+								buildSeq[i] = 1; //replace with a 1
 							}
 						}
-						goodPlateRuleLog = "Every odd digit set to 3.";
+						goodPlateRuleLog = "Every odd digit set to 1.";
 						break;
 					case 2:
 						for(int i=3;i<seqLength;i+=4) //find every 4th digit
@@ -644,7 +640,6 @@ public class badbonesScript : ModuleScript {
 
 	private IEnumerator PlayFinal(bool match)
 	{
-		float duration = 0.0f;
 		foreach(int val in sequence)
 		{
 			if(val == goodBone||val == badBone)
@@ -654,15 +649,12 @@ public class badbonesScript : ModuleScript {
 				{
 					case 0:
 						yield return new WaitForSecondsRealtime(audioClips[2].length);
-						duration += audioClips[2].length;
 						break;
 					case 1:
 						yield return new WaitForSecondsRealtime(audioClips[3].length);
-						duration += audioClips[3].length;
 						break;
 					case 2:
 						yield return new WaitForSecondsRealtime(audioClips[4].length);
-						duration += audioClips[4].length;
 						break;
 				}
 			}
@@ -670,17 +662,14 @@ public class badbonesScript : ModuleScript {
 			{
 				PlayMiddle();
 				yield return new WaitForSecondsRealtime(audioClips[5].length);
-				duration += audioClips[5].length;
 			}
 			if(val == highBone)
 			{
 				PlayHigh();
 				yield return new WaitForSecondsRealtime(audioClips[1].length);
-				duration += audioClips[1].length;
 			}
 		}
 		PlaySound(skullPivot.transform,"boneEnd");
-		//yield return new WaitForSecondsRealtime(duration);
 		answerCheck(match);
 	}
 
