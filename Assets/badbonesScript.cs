@@ -10,30 +10,46 @@ public class badbonesScript : ModuleScript {
 	//system
 	private bool _isSolved = false;
 	//module
-	private string sequence = "";
-	private string correctSeq = "";
-	private int seqLength,badBone,goodBone,midBone,highBone;
-	private bool _skullHeld = false;
-	private IDictionary<GameObject,int> bones = new Dictionary<GameObject,int>();
-	private Vector3 mouseStartPos;
-	private Quaternion skullStartRot;
-	//private float speed = 20f;
+	private int[] correctSeq; //correct sequence of notes
+	private List<int> sequence = new List<int>(); //player's input sequence
+	private int seqLength,badBone,goodBone,midBone,highBone,lowNoteCount=0; //length, note values, variations on low note
+	private bool _skullHeld = false; //whether the user is currently moving the skull
+	private Dictionary<GameObject,int> boneNotes; //dictionary assigning object to note
+	private Dictionary<Vector3,GameObject> bonesPos; //dictionary assigning position to object
+	private Dictionary<GameObject,int> boneConverter; //dictionary assigning object to value
+	private Vector3 posNorth,posEast,posSouth,posWest; //positions of sprites
+	private Vector2 mouseStartPos; //position of mouse, to control skull
+	private Quaternion skullStartRot; //initial rotation of skull
 	//list of primes for use in one specific function
 	//yes, this will break if you make a bomb with more than 500 modules on it and the sequence length is 0, but that's such a rare edge case that i don't care.
 	private int[] primes = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97,101,103,107,109,113,127,131,137,139,149,151,157,163,167,173,179,181,191,193,197,199,211,223,227,229,233,239,241,251,257,263,269,271,277,281,283,293,307,311,313,317,331,337,347,349,353,359,367,373,379,383,389,397,401,409,419,421,431,433,439,443,449,457,461,463,467,479,487,491,499};
 	//eyes
 	[SerializeField]
 	internal KMSelectable submit,reset;
-	public GameObject red,blue;
 	//skull
 	[SerializeField]
 	internal KMSelectable skull;
 	public GameObject skullPivot;
 	//sprites
 	public GameObject one,two,three,four;
+	//lights
+	public Light topBlue,bottomBlue,topRed,bottomRed;
+	//sounds
+	public AudioClip[] audioClips; //order: end, high, low1, low2, low3, mid, bad1, bad2, bad3, bad4
 
 	//bombgen
 	private void Start () {
+		foreach(AudioClip clip in audioClips)
+		{
+			Log(clip.length);
+		}
+		//fix lighting bug
+		float scalar = transform.lossyScale.x;
+		topBlue.range *= scalar;
+		bottomBlue.range *= scalar;
+		topRed.range *= scalar;
+		bottomRed.range *= scalar;
+
 		skullStartRot = skullPivot.transform.localRotation;
 		reset.Assign(onInteract: resetSeq);
 		submit.Assign(onInteract: submitSeq);
@@ -43,12 +59,20 @@ public class badbonesScript : ModuleScript {
 		createSeq();
 	}
 
-	void assignBones()
+	private void assignBones()
 	{
-		Vector3 posNorth = new Vector3(0,0,0.06f);
-		Vector3 posEast = new Vector3(0.06f,0,0);
-		Vector3 posSouth = new Vector3(0,0,-0.06f);
-		Vector3 posWest = new Vector3(-0.06f,0,0);
+		//actual value of each bone
+		boneConverter = new Dictionary<GameObject,int>(){{one,1},{two,2},{three,3},{four,4}};
+		//position of each bone - defined below
+		bonesPos = new Dictionary<Vector3,GameObject>();
+		//note of each bone - defined below
+		boneNotes = new Dictionary<GameObject,int>();
+
+		//list of possible positions
+		posNorth = new Vector3(0,0,0.06f);
+		posEast = new Vector3(0.06f,0,0);
+		posSouth = new Vector3(0,0,-0.06f);
+		posWest = new Vector3(-0.06f,0,0);
 		Vector3[] positions = {posNorth,posEast,posSouth,posWest};
 
 		System.Random rnd = new System.Random(); //creates the randomization
@@ -58,6 +82,29 @@ public class badbonesScript : ModuleScript {
 		two.transform.localPosition = positions[order[1]];
 		three.transform.localPosition = positions[order[2]];
 		four.transform.localPosition = positions[order[3]];
+		
+		GameObject[] boneList = {one,two,three,four};
+		foreach(GameObject bone in boneList)
+		{
+			//store them in a dictionary so they can be accurately referred to later
+			//this dictionary links positions with values
+			if(bone.transform.localPosition == posNorth)
+			{
+				bonesPos[posNorth] = bone;
+			}
+			if(bone.transform.localPosition == posEast)
+			{
+				bonesPos[posEast] = bone;
+			}	
+			if(bone.transform.localPosition == posSouth)
+			{
+				bonesPos[posSouth] = bone;
+			}
+			if(bone.transform.localPosition == posWest)
+			{
+				bonesPos[posWest] = bone;
+			}
+		}
 
 		//which bones each note is assigned to
 		var rndRange = Enumerable.Range(1,4).OrderBy(r => rnd.Next()).ToArray(); //Range is (startPos,numbers)
@@ -71,26 +118,27 @@ public class badbonesScript : ModuleScript {
 		foreach(int note in notes)
 		{
 			//store them in a dictionary so they can be accurately referred to later
+			//this dictionary links values with notes
 			switch(note)
 			{
 				case 1:
-					bones.Add(one,note);
+					boneNotes[one] = note;
 					break;
 				case 2:
-					bones.Add(two,note);
+					boneNotes[two] = note;
 					break;
 				case 3:
-					bones.Add(three,note);
+					boneNotes[three] = note;
 					break;
 				case 4:
-					bones.Add(four,note);
+					boneNotes[four] = note;
 					break;
 			}
 		}
 	}
 
 	//determine sequence
-	void createSeq()
+	private void createSeq()
 	{
 		string nums = "";
 		var bombInfo = Get<KMBombInfo>();
@@ -113,7 +161,7 @@ public class badbonesScript : ModuleScript {
 
 		if(seqLength == 3 && bombInfo.IsIndicatorPresent(Indicator.BOB)) //special case
 		{
-			correctSeq = String.Format("{0}{1}{2}",goodBone,midBone,highBone);
+			correctSeq = new int[3]{goodBone,midBone,highBone};
 			Log("Something tells me this guitar riff isn't like the others. Hey, what's BOB doing here?");
 		}
 		else
@@ -126,40 +174,109 @@ public class badbonesScript : ModuleScript {
 	private void resetSeq()
 	{
 		if(_isSolved){return;} //if solved, end function immediately
-		sequence = ""; //otherwise, clear sequence
+		ButtonEffect(reset,1.0f,Sound.ButtonPress);
+		Log("Sequence reset.");
+		sequence = new List<int>(); //otherwise, clear sequence
+		PlaySound(Sound.ButtonRelease);
 	}
 
 	private void submitSeq()
-	{
-		if(_isSolved){return;} //if solved, end function immediately
+    {
+        if (_isSolved) { return; } //if solved, end function immediately
 
-		Log("Inputted Sequence: {0}",sequence);
-		if(sequence == correctSeq) //if they match
+        ButtonEffect(reset, 1.0f, Sound.ButtonPress);
+        Log("Inputted Sequence: {0}", sequence);
+        Log("Correct Sequence: {0}", correctSeq);
+        bool match = true;
+		if(sequence.Count != seqLength)
 		{
-			Solve("SOLVE! Correct sequence!");
-			_isSolved = true; //stop any further interactions
+			match = false;
 		}
 		else
 		{
-			Strike("STRIKE! Incorrect sequence!");
+			for (int i = 0; i < sequence.Count; i++)
+			{
+				if (sequence[i] != correctSeq[i])
+				{
+					match = false;
+					break;
+				}
+			}
 		}
-	}
+        StartCoroutine(PlayFinal(match));
+    }
 
-	private void skullHold()
+    private void answerCheck(bool match)
+    {
+        if (match) //if they match
+        {
+            Solve("SOLVE! Correct sequence!");
+            _isSolved = true; //stop any further interactions
+        }
+        else
+        {
+            Strike("STRIKE! Incorrect sequence!");
+            PlayBad();
+            sequence = new List<int>(); //reset sequence after strike
+        }
+    }
+
+    private void skullHold()
 	{
+		//no _isSolved check as moving is fun :) (and doesn't affect anything!)
 		_skullHeld = true;
-		mouseStartPos = Input.mousePosition;
+		//mouseStartPos = Input.mousePosition;
 		StartCoroutine(MoveSkull());
-		//no _isSolved check as moving is fun :) (and doesn't affect anything)
 	}
 
 	private void skullRelease()
 	{
+		Quaternion skullRot = skullPivot.transform.localRotation;
 		_skullHeld = false;
 		if(_isSolved){return;} //if solved, end function immediately
+		Vector3 eulerSkullRot = skullRot.eulerAngles;
+
+		int bone = 0;
+		int note = 0;
+		if(eulerSkullRot.x>20)
+		{
+			GameObject boneObj = bonesPos[posNorth]; //bonesPos converts position to object
+			bone = boneConverter[boneObj]; //boneConverter converts object to integer
+			sequence.Add(bone); //add this integer to the main sequence
+			note = boneNotes[boneObj]; //boneNotes converts object to note
+			PlayNote(note); //plays the note
+		}
+		if(eulerSkullRot.x<-20)
+		{
+            GameObject boneObj = bonesPos[posSouth];
+            bone = boneConverter[boneObj];
+            sequence.Add(bone);
+			note = boneNotes[boneObj];
+			PlayNote(note);
+		}
+		if(eulerSkullRot.z>20)
+		{
+            GameObject boneObj = bonesPos[posEast];
+            bone = boneConverter[boneObj];
+            sequence.Add(bone);
+			note = boneNotes[boneObj];
+			PlayNote(note);
+		}
+		if(eulerSkullRot.z<-20)
+		{
+            GameObject boneObj = bonesPos[posWest];
+            bone = boneConverter[boneObj];
+            sequence.Add(bone);
+			note = boneNotes[boneObj];
+			PlayNote(note);
+		}
+		if(bone!=0)
+		{
+			Log("{0} inputted. Current input: {1}",bone,sequence);
+		}
 	}
 
-	private string seqRules()
+	private int[] seqRules()
 	{
 		var bombInfo = Get<KMBombInfo>(); //get cached bomb info
 		int[] buildSeq = new int[seqLength]; //create a build sequence for use later
@@ -350,10 +467,10 @@ public class badbonesScript : ModuleScript {
 						{
 							if(buildSeq[i] == 0) //check that it's not already assigned
 							{
-								buildSeq[i] = 3; //replace with a 3
+								buildSeq[i] = 4; //replace with a 4
 							}
 						}
-						containTwoRuleLog = "Every remaining digit set to 3.";
+						containTwoRuleLog = "Every remaining digit set to 4.";
 						break;
 				}
 				Log("Sequence contains a 2. Priority: {0}. " + containTwoRuleLog,priority+1);
@@ -368,30 +485,29 @@ public class badbonesScript : ModuleScript {
 					case 0:
 						for(int i=1;i<seqLength;i+=2) //find every 2nd digit
 						{
-							buildSeq[i] = 1; //set to 1
+							buildSeq[i] = 4; //set to 4
 						}
-						notContainOneRuleLog = "Every 2nd digit set to 1.";
+						notContainOneRuleLog = "Every 2nd digit set to 4.";
 						break;
 					case 1:
 						for(int i=0;i<seqLength;i++)
 						{
-							if(buildSeq[i] == 1) //replace all 1s
+							if(buildSeq[i] == 3) //replace all 3s
 							{
 								buildSeq[i] = 4; //with 4s
 							}
 						}
-						notContainOneRuleLog = "Every 1 replaced with 4.";
+						notContainOneRuleLog = "Every 3 replaced with 4.";
 						break;
 					case 2:
 						for(int i=0;i<seqLength;i++)
 						{
-							if(buildSeq[i] == 4) //replace the first 4
+							if(i<4) //replace the first 4 digits
 							{
 								buildSeq[i] = 2; //with a 2
-								break; //only the first 4
 							}
 						}
-						notContainOneRuleLog = "First 4 replaced with a 2.";
+						notContainOneRuleLog = "First 4 digits replaced with a 2.";
 						break;
 					case 3:
 						for(int i=0;i<seqLength;i++) //iterate over remaining digits
@@ -497,27 +613,118 @@ public class badbonesScript : ModuleScript {
 			}
 		}
 
-		return buildSeq.Join("");
+		return buildSeq;
 	}
 
 	private void PlayLow()
 	{
-		//
+		switch(lowNoteCount++%3)
+        {
+			case 0:
+				PlaySound(skullPivot.transform,"boneLow1");
+				break;
+			case 1:
+				PlaySound(skullPivot.transform,"boneLow2");
+				break;
+			case 2:
+				PlaySound(skullPivot.transform,"boneLow3");
+				break;
+        }
 	}
 
 	private void PlayMiddle()
 	{
-		//
+		PlaySound(skullPivot.transform,"boneMid");
 	}
 
 	private void PlayHigh()
 	{
-		//
+		PlaySound(skullPivot.transform,"boneHigh");
 	}
 
-	private void PlayFinal()
+	private IEnumerator PlayFinal(bool match)
 	{
-		//
+		float duration = 0.0f;
+		foreach(int val in sequence)
+		{
+			if(val == goodBone||val == badBone)
+			{
+				PlayLow();
+				switch(lowNoteCount++%3)
+				{
+					case 0:
+						yield return new WaitForSecondsRealtime(audioClips[2].length);
+						duration += audioClips[2].length;
+						break;
+					case 1:
+						yield return new WaitForSecondsRealtime(audioClips[3].length);
+						duration += audioClips[3].length;
+						break;
+					case 2:
+						yield return new WaitForSecondsRealtime(audioClips[4].length);
+						duration += audioClips[4].length;
+						break;
+				}
+			}
+			if(val == midBone)
+			{
+				PlayMiddle();
+				yield return new WaitForSecondsRealtime(audioClips[5].length);
+				duration += audioClips[5].length;
+			}
+			if(val == highBone)
+			{
+				PlayHigh();
+				yield return new WaitForSecondsRealtime(audioClips[1].length);
+				duration += audioClips[1].length;
+			}
+		}
+		PlaySound(skullPivot.transform,"boneEnd");
+		//yield return new WaitForSecondsRealtime(duration);
+		answerCheck(match);
+	}
+
+	private void PlayNote(int note)
+	{
+		if(note == goodBone||note == badBone)
+		{
+			PlayLow();
+		}
+		if(note == midBone)
+		{
+			PlayMiddle();
+		}
+		if(note == highBone)
+		{
+			PlayHigh();
+		}
+		if(note == 0)
+		{
+			Log("Default note value accessed. This is a bug.");
+			throw new Exception("DEFAULT ACCESSED");
+		}
+	}
+
+	private void PlayBad()
+	{
+		System.Random rnd = new System.Random(); //creates the randomization
+		int[] badRange = Enumerable.Range(0,4).OrderBy(r => rnd.Next()).ToArray();
+		int bad = badRange[0];
+		switch(bad)
+		{
+			case 0:
+				PlaySound("bad1");
+				break;
+			case 1:
+				PlaySound("bad2");
+				break;
+			case 2:
+				PlaySound("bad3");
+				break;
+			case 3:
+				PlaySound("bad4");
+				break;
+		}
 	}
 
 	private IEnumerator MoveSkull()
