@@ -1567,6 +1567,8 @@ MonoBehaviour:
   _editorRuleSeed: 1
   submit: {fileID: 114528425103306220}
   reset: {fileID: 114369137650870628}
+  red: {fileID: 1504551893468556}
+  blue: {fileID: 1742284410934056}
   skull: {fileID: 114865880124277286}
   skullPivot: {fileID: 1273606288475326}
   one: {fileID: 1238163311879126}

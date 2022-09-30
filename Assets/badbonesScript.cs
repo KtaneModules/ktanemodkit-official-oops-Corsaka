@@ -26,6 +26,7 @@ public class badbonesScript : ModuleScript {
 	//eyes
 	[SerializeField]
 	internal KMSelectable submit,reset;
+	public GameObject red,blue;
 	//skull
 	[SerializeField]
 	internal KMSelectable skull;
@@ -52,6 +53,7 @@ public class badbonesScript : ModuleScript {
 		skull.Assign(onInteract: skullHold);
 		skull.Assign(onInteractEnded: skullRelease);
 		assignBones();
+		mixEyes();
 		createSeq();
 	}
 
@@ -87,18 +89,22 @@ public class badbonesScript : ModuleScript {
 			if(bone.transform.localPosition == posNorth)
 			{
 				bonesPos[posNorth] = bone;
+				Log("North bone: {0}",bone);
 			}
 			if(bone.transform.localPosition == posEast)
 			{
 				bonesPos[posEast] = bone;
+				Log("East bone: {0}",bone);
 			}	
 			if(bone.transform.localPosition == posSouth)
 			{
 				bonesPos[posSouth] = bone;
+				Log("South bone: {0}",bone);
 			}
 			if(bone.transform.localPosition == posWest)
 			{
 				bonesPos[posWest] = bone;
+				Log("West bone: {0}",bone);
 			}
 		}
 
@@ -109,6 +115,7 @@ public class badbonesScript : ModuleScript {
 		midBone = rndRange[2];
 		highBone = rndRange[3];
 		Log("Bad Bone: {0}; Good Bone: {1};",badBone,goodBone);
+		Log("Mid bone: {0}; High bone {1};",midBone,highBone);
 
 		int[] notes = {badBone,goodBone,midBone,highBone}; //to iterate over
 		foreach(int note in notes)
@@ -130,6 +137,18 @@ public class badbonesScript : ModuleScript {
 					boneNotes[four] = note;
 					break;
 			}
+		}
+	}
+
+	private void mixEyes()
+	{
+		Vector3 posLeft = new Vector3(-0.00038132f,0.00075f,0);
+		Vector3 posRight = new Vector3(0.00038132f,0.00075f,0);
+
+		if(badBone > goodBone) //be cheeky. randomly generate the badbone and position red/blue according to that.
+		{
+			red.transform.localPosition = posLeft;
+			blue.transform.localPosition = posRight;
 		}
 	}
 
@@ -221,8 +240,7 @@ public class badbonesScript : ModuleScript {
 	{
 		//no _isSolved check as moving is fun :) (and doesn't affect anything!)
 		_skullHeld = true;
-		//mouseStartPos = Input.mousePosition;
-		StartCoroutine(MoveSkull());
+		mouseStartPos = Input.mousePosition;
 	}
 
 	private void skullRelease()
@@ -234,7 +252,7 @@ public class badbonesScript : ModuleScript {
 
 		int bone = 0;
 		int note = 0;
-		if(eulerSkullRot.x>20)
+		if(22.6f >= eulerSkullRot.x && eulerSkullRot.x >= 17.5f)
 		{
 			GameObject boneObj = bonesPos[posNorth]; //bonesPos converts position to object
 			bone = boneConverter[boneObj]; //boneConverter converts object to integer
@@ -242,7 +260,7 @@ public class badbonesScript : ModuleScript {
 			note = boneNotes[boneObj]; //boneNotes converts object to note
 			PlayNote(note); //plays the note
 		}
-		if(eulerSkullRot.x<-20)
+		if(337.4f <= eulerSkullRot.x && eulerSkullRot.x <= 342.5f)
 		{
             GameObject boneObj = bonesPos[posSouth];
             bone = boneConverter[boneObj];
@@ -250,7 +268,7 @@ public class badbonesScript : ModuleScript {
 			note = boneNotes[boneObj];
 			PlayNote(note);
 		}
-		if(eulerSkullRot.z>20)
+		if(337.4f <= eulerSkullRot.z && eulerSkullRot.z <= 342.5f)
 		{
             GameObject boneObj = bonesPos[posEast];
             bone = boneConverter[boneObj];
@@ -258,7 +276,7 @@ public class badbonesScript : ModuleScript {
 			note = boneNotes[boneObj];
 			PlayNote(note);
 		}
-		if(eulerSkullRot.z<-20)
+		if(22.6f >= eulerSkullRot.z && eulerSkullRot.z >= 17.5f)
 		{
             GameObject boneObj = bonesPos[posWest];
             bone = boneConverter[boneObj];
@@ -388,20 +406,20 @@ public class badbonesScript : ModuleScript {
 							{
 								//for each digit, set correctly
 								case 0:
-									buildSeq[i] = 1;
+									buildSeq[i] = 3;
 									break;
 								case 1:
-									buildSeq[i] = 2;
+									buildSeq[i] = 1;
 									break;
 								case 2:
-									buildSeq[i] = 3;
+									buildSeq[i] = 2;
 									break;
 								case 3:
 									buildSeq[i] = 4;
 									break;
 							}
 						}
-						goodPlateRuleLog = "Repeating '1234' until end of sequence.";
+						goodPlateRuleLog = "Repeating '3124' until end of sequence.";
 						break;
 					case 1:
 						for(int i=0;i<seqLength;i+=2)
@@ -599,7 +617,7 @@ public class badbonesScript : ModuleScript {
 			}
 		}
 
-		Log("Replacing the Bad Bone values with the Good Bone value:");
+		Log("Replacing the Bad Bone ({0}) with the Good Bone ({1}):",badBone,goodBone);
 		for(int i=0;i<seqLength;i++)
 		{
 			if(buildSeq[i] == badBone) //if value is the bad bone
@@ -609,6 +627,7 @@ public class badbonesScript : ModuleScript {
 			}
 		}
 
+		Log("Checking sequence modifiers:");
 		return buildSeq;
 	}
 
@@ -640,6 +659,7 @@ public class badbonesScript : ModuleScript {
 
 	private IEnumerator PlayFinal(bool match)
 	{
+		lowNoteCount = 0;
 		foreach(int val in sequence)
 		{
 			if(val == goodBone||val == badBone)
@@ -648,25 +668,25 @@ public class badbonesScript : ModuleScript {
 				switch(lowNoteCount++%3)
 				{
 					case 0:
-						yield return new WaitForSecondsRealtime(audioClips[2].length);
+						yield return new WaitForSecondsRealtime(audioClips[2].length*0.9f);
 						break;
 					case 1:
-						yield return new WaitForSecondsRealtime(audioClips[3].length);
+						yield return new WaitForSecondsRealtime(audioClips[3].length*0.9f);
 						break;
 					case 2:
-						yield return new WaitForSecondsRealtime(audioClips[4].length);
+						yield return new WaitForSecondsRealtime(audioClips[4].length*0.9f);
 						break;
 				}
 			}
 			if(val == midBone)
 			{
 				PlayMiddle();
-				yield return new WaitForSecondsRealtime(audioClips[5].length);
+				yield return new WaitForSecondsRealtime(audioClips[5].length*0.9f);
 			}
 			if(val == highBone)
 			{
 				PlayHigh();
-				yield return new WaitForSecondsRealtime(audioClips[1].length);
+				yield return new WaitForSecondsRealtime(audioClips[1].length*0.9f);
 			}
 		}
 		PlaySound(skullPivot.transform,"boneEnd");
@@ -716,12 +736,6 @@ public class badbonesScript : ModuleScript {
 		}
 	}
 
-	private IEnumerator MoveSkull()
-	{
-		skullPivot.transform.localRotation = Quaternion.Euler(22.5f,0,0);
-		yield return null;
-	}
-
 	// Update is called once per frame
 	void Update () {
 		Quaternion skullRot = skullPivot.transform.localRotation;
@@ -729,6 +743,14 @@ public class badbonesScript : ModuleScript {
 		{
 			//return skull to center
 			skullPivot.transform.localRotation = Quaternion.Lerp(skullRot,skullStartRot,20.0f*Time.deltaTime);
+		}
+		if(_skullHeld)
+		{
+			float xMouse = mouseStartPos.x - Input.mousePosition.x; //mousePos x needs to be inverted - +x = left. apparently.
+			float yMouse = Input.mousePosition.y - mouseStartPos.y; //mousePos y does not - +y = up. for some reason.
+			Vector3 currentRot = new Vector3(yMouse,0,xMouse);
+			Vector3 clampedRot = Vector3.ClampMagnitude(currentRot,22.5f);
+			skullPivot.transform.localRotation = Quaternion.Euler(clampedRot);
 		}
 	}
 }
