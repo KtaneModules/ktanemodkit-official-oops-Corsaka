@@ -48,7 +48,8 @@
                 <p>
                     One of the bone groups on the bomb contains a <b>Bad Bone</b>. Entering a sequence
                     containing a Bad Bone will result in a strike. If your sequence contains a Bad
-                    Bone, it should be replaced with the corresponding Good Bone.
+                    Bone, it should be replaced with the corresponding Good Bone after every other
+                    rule has been followed.
                 </p>
                 <h4>Finding The Bad Bone</h4>
                 <p>
@@ -82,7 +83,11 @@
                     Repeat the process, <b>ignoring</b> any conditions that have been fulfilled before
                     (excluding "Otherwise"), following the next priority rule for each condition.
                 </p>
-                <p>In cases of conflict, higher priority rules override those with lower priority. Higher priority rules are also followed first.</p>
+                <p>
+                    In cases of conflict, higher priority rules override those with lower priority.
+                    Higher priority rules are also followed first.<br>
+                    Follow 'future' rules after all other rules.
+                </p>
                 <table style="border:0px" width="100%">
                     <tbody>
                         <tr>
@@ -112,7 +117,7 @@
                         </tr>
                         <tr>
                             <th>Serial number contains a vowel</th>
-                            <td>Replace every future 2 with a 3</td>
+                            <td>Replace each future 2 with a 3</td>
                             <td>Every 5th digit is a 4</td>
                             <td>Every prime (including 1) digit is a 1</td>
                             <td>Every remaining digit is a 3</td>
@@ -127,7 +132,7 @@
                         <tr>
                             <th>Sequence contains a 2</th>
                             <td>Every 3rd digit is a 4</td>
-                            <td>Replace every future 3 with a 4</td>
+                            <td>Replace each future 3 with a 4</td>
                             <td>Replace the final digit with a 1</td>
                             <td>Every remaining digit is a 4</td>
                         </tr>
@@ -159,7 +164,7 @@
                 <h3>Sequence Modifiers</h3>
                 <p>
                     Sometimes the sequence just doesn't feel like you're the baddest to the bone.
-                    Apply <b>every</b> modifier that applies from top to bottom.
+                    Apply <b>every</b> modifier where the requirements are met from <b>top</b> to <b>bottom</b>.
                 </p>
                 <table>
                     <tbody>
@@ -169,7 +174,27 @@
                             <th>Action Taken</th>
                         </tr>
                         <tr>
-                            <td>- In clockwise order, starting from north, bones ordered 1, 2, 3, 4<br>- Sequence Length 5</td>
+                            <td>- No ports present</td>
+                            <td>Good and Bad Bone digits</td>
+                            <td>Count how many of these there are. Add the values of the Good and Bad Bones. If this exceeds the sequence length, reverse the entire sequence.</td>
+                        </tr>
+                        <tr>
+                            <td>- More letters than numbers in serial number</td>
+                            <td>Every Position that is a power of two (1,2,4,8,16...)</td>
+                            <td>Replace every 1 with a 4, every 2 with a 3, every 3 with a 2, and every 4 with a 1.</td>
+                        </tr>
+                        <tr>
+                            <td>- More than 3 batteries</td>
+                            <td>Position 1-4</td>
+                            <td>Add 2 to each digit, modulo 5. Any 0s should be replaced with the value of the Good Bone.</td>
+                        </tr>
+                        <tr>
+                            <td>- Bad Bone even</td>
+                            <td>Position 3-8</td>
+                            <td>Reverse the order of these digits.</td> 
+                        </tr>
+                        <tr>
+                            <td>- In clockwise order, starting from north, bones are ordered 1, 2, 3, 4<br>- Sequence Length 5</td>
                             <td>Entire Sequence</td>
                             <td>Play the first five notes of the Bad to the Bone riff (low, low, high, low, middle).</td>
                         </tr>
@@ -183,11 +208,6 @@
                         </tr>
                     </tbody>
                 </table>
-                <p>
-                    If a BOB indicator is present on the bomb, and the sequence is of length 3, submit
-                    a sequence of the lowest note, the middle note, and the highest note.<br>
-                    Then pat yourself on the back for realising what you've played.
-                </p>
             </div>
             <div class="page-footer relative-footer">Page 3 of 3</div>
         </div>

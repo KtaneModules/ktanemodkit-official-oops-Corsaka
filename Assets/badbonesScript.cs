@@ -25,16 +25,16 @@ public class badbonesScript : ModuleScript {
 	private int[] primes = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97,101,103,107,109,113,127,131,137,139,149,151,157,163,167,173,179,181,191,193,197,199,211,223,227,229,233,239,241,251,257,263,269,271,277,281,283,293,307,311,313,317,331,337,347,349,353,359,367,373,379,383,389,397,401,409,419,421,431,433,439,443,449,457,461,463,467,479,487,491,499};
 	//eyes
 	[SerializeField]
-	internal KMSelectable submit,reset;
-	public GameObject red,blue;
+	internal KMSelectable submit,reset; //eye selectables
+	public GameObject red,blue; //eyes
 	//skull
 	[SerializeField]
-	internal KMSelectable skull;
-	public GameObject skullPivot;
+	internal KMSelectable skull; //skull selectable
+	public GameObject skullPivot; //thing that moves
 	//sprites
-	public GameObject one,two,three,four;
+	public GameObject one,two,three,four; //your bones
 	//lights
-	public Light topBlue,bottomBlue,topRed,bottomRed;
+	public Light topBlue,bottomBlue,topRed,bottomRed; //eye lights
 	//sounds
 	public AudioClip[] audioClips; //order: end, high, low1, low2, low3, mid, bad1, bad2, bad3, bad4
 
@@ -174,15 +174,7 @@ public class badbonesScript : ModuleScript {
 		}
 		Log("Sequence Length: {0}",seqLength);
 
-		if(seqLength == 3 && bombInfo.IsIndicatorPresent(Indicator.BOB)) //special case
-		{
-			correctSeq = new int[3]{goodBone,midBone,highBone};
-			Log("Something tells me this guitar riff isn't like the others. Hey, what's BOB doing here?");
-		}
-		else
-		{
-			correctSeq = seqRules(); //run the big ol rules determinator
-		}
+		correctSeq = seqRules(); //run the big ol rules determinator
 		Log("Correct Sequence: {0}",correctSeq);
 	}
 
@@ -196,13 +188,13 @@ public class badbonesScript : ModuleScript {
 	}
 
 	private void submitSeq()
-    {
-        if (_isSolved) { return; } //if solved, end function immediately
+	{
+		if (_isSolved) { return; } //if solved, end function immediately
 
-        ButtonEffect(reset, 1.0f, Sound.ButtonPress);
-        Log("Inputted Sequence: {0}", sequence);
-        Log("Correct Sequence: {0}", correctSeq);
-        bool match = true;
+		ButtonEffect(reset, 1.0f, Sound.ButtonPress);
+		Log("Inputted Sequence: {0}", sequence);
+		Log("Correct Sequence: {0}", correctSeq);
+		bool match = true;
 		if(sequence.Count != seqLength)
 		{
 			match = false;
@@ -218,25 +210,25 @@ public class badbonesScript : ModuleScript {
 				}
 			}
 		}
-        StartCoroutine(PlayFinal(match));
-    }
+		StartCoroutine(PlayFinal(match));
+	}
 
-    private void answerCheck(bool match)
-    {
-        if (match) //if they match
-        {
-            Solve("SOLVE! Correct sequence!");
-            _isSolved = true; //stop any further interactions
-        }
-        else
-        {
-            Strike("STRIKE! Incorrect sequence!");
-            PlayBad();
-            sequence = new List<int>(); //reset sequence after strike
-        }
-    }
+	private void answerCheck(bool match)
+	{
+		if (match) //if they match
+		{
+			Solve("SOLVE! Correct sequence!");
+			_isSolved = true; //stop any further interactions
+		}
+		else
+		{
+			Strike("STRIKE! Incorrect sequence!");
+			PlayBad();
+			sequence = new List<int>(); //reset sequence after strike
+		}
+	}
 
-    private void skullHold()
+	private void skullHold()
 	{
 		//no _isSolved check as moving is fun :) (and doesn't affect anything!)
 		_skullHeld = true;
@@ -245,46 +237,46 @@ public class badbonesScript : ModuleScript {
 
 	private void skullRelease()
 	{
-		Quaternion skullRot = skullPivot.transform.localRotation;
 		_skullHeld = false;
 		if(_isSolved){return;} //if solved, end function immediately
-		Vector3 eulerSkullRot = skullRot.eulerAngles;
+		Quaternion skullRot = skullPivot.transform.localRotation; //get rotation
+		Vector3 eulerSkullRot = skullRot.eulerAngles; //convert rotation to something that isn't bullshit difficult to understand
 
 		int bone = 0;
 		int note = 0;
-		if(22.6f >= eulerSkullRot.x && eulerSkullRot.x >= 17.5f)
+		if(22.6f >= eulerSkullRot.x && eulerSkullRot.x >= 17.5f) //bound is 22.6f because Clamp doesn't perfectly clamp to 22.5f
 		{
 			GameObject boneObj = bonesPos[posNorth]; //bonesPos converts position to object
 			bone = boneConverter[boneObj]; //boneConverter converts object to integer
-			sequence.Add(bone); //add this integer to the main sequence
+			sequence.Add(bone); //add this integer to the input sequence
 			note = boneNotes[boneObj]; //boneNotes converts object to note
 			PlayNote(note); //plays the note
 		}
 		if(337.4f <= eulerSkullRot.x && eulerSkullRot.x <= 342.5f)
 		{
-            GameObject boneObj = bonesPos[posSouth];
-            bone = boneConverter[boneObj];
-            sequence.Add(bone);
+			GameObject boneObj = bonesPos[posSouth];
+			bone = boneConverter[boneObj];
+			sequence.Add(bone);
 			note = boneNotes[boneObj];
 			PlayNote(note);
 		}
 		if(337.4f <= eulerSkullRot.z && eulerSkullRot.z <= 342.5f)
 		{
-            GameObject boneObj = bonesPos[posEast];
-            bone = boneConverter[boneObj];
-            sequence.Add(bone);
+			GameObject boneObj = bonesPos[posEast];
+			bone = boneConverter[boneObj];
+			sequence.Add(bone);
 			note = boneNotes[boneObj];
 			PlayNote(note);
 		}
 		if(22.6f >= eulerSkullRot.z && eulerSkullRot.z >= 17.5f)
 		{
-            GameObject boneObj = bonesPos[posWest];
-            bone = boneConverter[boneObj];
-            sequence.Add(bone);
+			GameObject boneObj = bonesPos[posWest];
+			bone = boneConverter[boneObj];
+			sequence.Add(bone);
 			note = boneNotes[boneObj];
 			PlayNote(note);
 		}
-		if(bone!=0)
+		if(bone!=0) //if they've released it above a bone
 		{
 			Log("{0} inputted. Current input: {1}",bone,sequence);
 		}
@@ -295,15 +287,15 @@ public class badbonesScript : ModuleScript {
 		var bombInfo = Get<KMBombInfo>(); //get cached bomb info
 		int[] buildSeq = new int[seqLength]; //create a build sequence for use later
 		int bbCount = 0; //to count bad bones modules
-		bool multiRuleBool=false,badFourRuleBool=false,serialRuleBool=false,goodPlateRuleBool=false,containTwoRuleBool=false,notContainOneRuleBool=false; //bools for each rule
-		bool replaceTwos=false,replaceThrees=false; //in case we are updating all future 2s/3s
-		string badFourRuleLog,serialRuleLog,goodPlateRuleLog,containTwoRuleLog,notContainOneRuleLog,otherwiseLog; //logs for each rule
-		badFourRuleLog=serialRuleLog=goodPlateRuleLog=containTwoRuleLog=notContainOneRuleLog=otherwiseLog="DEFAULT TEXT - THIS SHOULD NOT BE VISIBLE";
-		
+		bool multiRuleBool = false, badFourRuleBool = false, serialRuleBool = false, goodPlateRuleBool = false, containTwoRuleBool = false, notContainOneRuleBool = false; //bools for each rule
+		bool replaceTwos = false, replaceThrees = false; //in case we are updating all future 2s/3s
+		string badFourRuleLog, serialRuleLog, goodPlateRuleLog, containTwoRuleLog, notContainOneRuleLog, otherwiseLog; //logs for each rule
+		badFourRuleLog = serialRuleLog = goodPlateRuleLog = containTwoRuleLog = notContainOneRuleLog = otherwiseLog = "DEFAULT TEXT - THIS SHOULD NOT BE VISIBLE";
+
 		//pre for multiRule
-		foreach(string module in bombInfo.GetModuleNames()) //iterate over all modules
+		foreach (string module in bombInfo.GetModuleNames()) //iterate over all modules
 		{
-			if(module == "badbones") //if their name is "badbones"
+			if (module == "badbones") //if their name is "badbones"
 			{
 				bbCount += 1; //add 1 to bad bone counter
 			}
@@ -313,18 +305,18 @@ public class badbonesScript : ModuleScript {
 		string serial = bombInfo.GetSerialNumberLetters().ToArray().Join("");
 		Log(serial);
 		var res = serial.Where(c => "AEIOU".Contains(c));
-		if(res.Any()) //check for vowels in serial number
+		if (res.Any()) //check for vowels in serial number
 		{
 			vowel = true; //if there are, set the vowel bool
 		}
 		Log(vowel);
-		for(int priority=0;priority<4;priority++) //we have 4 priority layers
+		for (int priority = 0; priority < 4; priority++) //we have 4 priority layers
 		{
 
 			//multiple bad bones modules
-			if((bbCount > 1) && !multiRuleBool) //if there's 2+ bad bones modules and this rule hasn't been completed before
+			if ((bbCount > 1) && !multiRuleBool) //if there's 2+ bad bones modules and this rule hasn't been completed before
 			{
-				for(int i=2;i<seqLength;i+=3) //find every 3rd digit
+				for (int i = 2; i < seqLength; i += 3) //find every 3rd digit
 				{
 					buildSeq[i] = 3; //replace with a 3
 				}
@@ -333,19 +325,19 @@ public class badbonesScript : ModuleScript {
 			}
 
 			//bad bone is a 4
-			else if((badBone == 4) && !badFourRuleBool) //if badBone is a 4 and this rule hasn't been completed before
+			else if ((badBone == 4) && !badFourRuleBool) //if badBone is a 4 and this rule hasn't been completed before
 			{
-				switch(priority)
+				switch (priority)
 				{
 					case 0:
 						buildSeq[0] = 4; //first
-						buildSeq[seqLength-1] = 4; //final
+						buildSeq[seqLength - 1] = 4; //final
 						badFourRuleLog = "First/Last digit of sequence set to 4.";
 						break;
 					case 1:
-						for(int i=1;i<seqLength;i+=2) //find every 2nd digit
+						for (int i = 1; i < seqLength; i += 2) //find every 2nd digit
 						{
-							if(buildSeq[i] == 0) //check that it's not already assigned
+							if (buildSeq[i] == 0) //check that it's not already assigned
 							{
 								buildSeq[i] = 2; //replace with a 2
 							}
@@ -353,23 +345,23 @@ public class badbonesScript : ModuleScript {
 						badFourRuleLog = "Every 2nd digit set to 2.";
 						break;
 				}
-				Log("Bad Bone is a 4. Priority: {0}. " + badFourRuleLog,priority+1);
+				Log("Bad Bone is a 4. Priority: {0}. " + badFourRuleLog, priority + 1);
 				badFourRuleBool = true; //set rule as completed
 			}
 
 			//serial number contains a vowel
-			else if(vowel && !serialRuleBool) //if we have a vowel and this rule hasn't been completed before
+			else if (vowel && !serialRuleBool) //if we have a vowel and this rule hasn't been completed before
 			{
-				switch(priority)
+				switch (priority)
 				{
 					case 0:
 						replaceTwos = true; //to be replaced later
 						serialRuleLog = "Every future 2 will be set to 3.";
 						break;
 					case 1:
-						for(int i=4;i<seqLength;i+=5) //find every 2nd digit
+						for (int i = 4; i < seqLength; i += 5) //find every 2nd digit
 						{
-							if(buildSeq[i] == 0) //check that it's not already assigned
+							if (buildSeq[i] == 0) //check that it's not already assigned
 							{
 								buildSeq[i] = 4; //replace with a 4
 							}
@@ -377,11 +369,11 @@ public class badbonesScript : ModuleScript {
 						serialRuleLog = "Every 2nd digit set to 3.";
 						break;
 					case 2:
-						for(int i=1;i<seqLength;i+=2) //we can ignore i=2 because the only way to access this rule is for every 2nd digit to already be set to 2
+						for (int i = 1; i < seqLength; i += 2) //we can ignore i=2 because the only way to access this rule is for every 2nd digit to already be set to 2
 						{
-							if(primes.Contains(i))
+							if (primes.Contains(i))
 							{
-								if(buildSeq[i] == 0) //check that it's not already assigned
+								if (buildSeq[i] == 0) //check that it's not already assigned
 								{
 									buildSeq[i] = 1; //replace with a 1
 								}
@@ -390,19 +382,19 @@ public class badbonesScript : ModuleScript {
 						serialRuleLog = "All prime digits set to 1.";
 						break;
 				}
-				Log("Serial contains a vowel. Priority: {0}. " + serialRuleLog,priority+1);
+				Log("Serial contains a vowel. Priority: {0}. " + serialRuleLog, priority + 1);
 				serialRuleBool = true; //set rule as completed
 			}
 
 			//good bone exceed number of port plates
-			else if((goodBone > bombInfo.GetPortPlateCount()) && !goodPlateRuleBool)
+			else if ((goodBone > bombInfo.GetPortPlateCount()) && !goodPlateRuleBool)
 			{
-				switch(priority)
+				switch (priority)
 				{
 					case 0:
-						for(int i=0;i<seqLength;i++) //iterate over entire thing
+						for (int i = 0; i < seqLength; i++) //iterate over entire thing
 						{
-							switch(i%4)
+							switch (i % 4)
 							{
 								//for each digit, set correctly
 								case 0:
@@ -422,9 +414,9 @@ public class badbonesScript : ModuleScript {
 						goodPlateRuleLog = "Repeating '3124' until end of sequence.";
 						break;
 					case 1:
-						for(int i=0;i<seqLength;i+=2)
+						for (int i = 0; i < seqLength; i += 2)
 						{
-							if(buildSeq[i] == 0) //check that it's not already assigned
+							if (buildSeq[i] == 0) //check that it's not already assigned
 							{
 								buildSeq[i] = 1; //replace with a 1
 							}
@@ -432,9 +424,9 @@ public class badbonesScript : ModuleScript {
 						goodPlateRuleLog = "Every odd digit set to 1.";
 						break;
 					case 2:
-						for(int i=3;i<seqLength;i+=4) //find every 4th digit
+						for (int i = 3; i < seqLength; i += 4) //find every 4th digit
 						{
-							if(buildSeq[i] == 0) //check that it's not already assigned
+							if (buildSeq[i] == 0) //check that it's not already assigned
 							{
 								buildSeq[i] = 2; //replace with a 2
 							}
@@ -442,27 +434,27 @@ public class badbonesScript : ModuleScript {
 						goodPlateRuleLog = "Every 4th digit set to 2.";
 						break;
 					case 3:
-						for(int i=0;i<seqLength;i++) //find every remaining digit
+						for (int i = 0; i < seqLength; i++) //find every remaining digit
 						{
-							if(buildSeq[i] == 0) //check that it's not already assigned
+							if (buildSeq[i] == 0) //check that it's not already assigned
 							{
 								buildSeq[i] = goodBone; //replace with the good bone
 							}
 						}
-						goodPlateRuleLog = String.Format("Every remaining digit set to {0}.",goodBone);
+						goodPlateRuleLog = String.Format("Every remaining digit set to {0}.", goodBone);
 						break;
 				}
-				Log("Good Bone value ({0}) exceeds number of port plates ({1}). Priority: {2}. " + goodPlateRuleLog,goodBone,bombInfo.GetPortPlateCount(),priority+1);
+				Log("Good Bone value ({0}) exceeds number of port plates ({1}). Priority: {2}. " + goodPlateRuleLog, goodBone, bombInfo.GetPortPlateCount(), priority + 1);
 				goodPlateRuleBool = true; //set rule as completed
 			}
 
 			//sequence contains a 2
-			else if(buildSeq.Contains(2) && !containTwoRuleBool)
+			else if (buildSeq.Contains(2) && !containTwoRuleBool)
 			{
-				switch(priority)
+				switch (priority)
 				{
 					case 0:
-						for(int i=2;i<seqLength;i+=3) //find every 3rd digit
+						for (int i = 2; i < seqLength; i += 3) //find every 3rd digit
 						{
 							buildSeq[i] = 4; //replace with a 4
 						}
@@ -473,13 +465,13 @@ public class badbonesScript : ModuleScript {
 						containTwoRuleLog = "Every future 3 will be set to 4.";
 						break;
 					case 2:
-						buildSeq[seqLength-1] = 1; //replace final digit with 1
+						buildSeq[seqLength - 1] = 1; //replace final digit with 1
 						containTwoRuleLog = "Final digit replaced with 1.";
 						break;
 					case 3:
-						for(int i=0;i<seqLength;i++)
+						for (int i = 0; i < seqLength; i++)
 						{
-							if(buildSeq[i] == 0) //check that it's not already assigned
+							if (buildSeq[i] == 0) //check that it's not already assigned
 							{
 								buildSeq[i] = 4; //replace with a 4
 							}
@@ -487,26 +479,26 @@ public class badbonesScript : ModuleScript {
 						containTwoRuleLog = "Every remaining digit set to 4.";
 						break;
 				}
-				Log("Sequence contains a 2. Priority: {0}. " + containTwoRuleLog,priority+1);
+				Log("Sequence contains a 2. Priority: {0}. " + containTwoRuleLog, priority + 1);
 				containTwoRuleBool = true; //set rule as completed
 			}
 
 			//sequence does not contain a 1
-			else if(!buildSeq.Contains(1) && !notContainOneRuleBool)
+			else if (!buildSeq.Contains(1) && !notContainOneRuleBool)
 			{
-				switch(priority)
+				switch (priority)
 				{
 					case 0:
-						for(int i=1;i<seqLength;i+=2) //find every 2nd digit
+						for (int i = 1; i < seqLength; i += 2) //find every 2nd digit
 						{
 							buildSeq[i] = 4; //set to 4
 						}
 						notContainOneRuleLog = "Every 2nd digit set to 4.";
 						break;
 					case 1:
-						for(int i=0;i<seqLength;i++)
+						for (int i = 0; i < seqLength; i++)
 						{
-							if(buildSeq[i] == 3) //replace all 3s
+							if (buildSeq[i] == 3) //replace all 3s
 							{
 								buildSeq[i] = 4; //with 4s
 							}
@@ -514,9 +506,9 @@ public class badbonesScript : ModuleScript {
 						notContainOneRuleLog = "Every 3 replaced with 4.";
 						break;
 					case 2:
-						for(int i=0;i<seqLength;i++)
+						for (int i = 0; i < seqLength; i++)
 						{
-							if(i<4) //replace the first 4 digits
+							if (i < 4) //replace the first 4 digits
 							{
 								buildSeq[i] = 2; //with a 2
 							}
@@ -524,9 +516,9 @@ public class badbonesScript : ModuleScript {
 						notContainOneRuleLog = "First 4 digits replaced with a 2.";
 						break;
 					case 3:
-						for(int i=0;i<seqLength;i++) //iterate over remaining digits
+						for (int i = 0; i < seqLength; i++) //iterate over remaining digits
 						{
-							if(buildSeq[i] == 0) //check that it's not already assigned
+							if (buildSeq[i] == 0) //check that it's not already assigned
 							{
 								buildSeq[i] = 1; //replace with a 1
 							}
@@ -534,26 +526,26 @@ public class badbonesScript : ModuleScript {
 						notContainOneRuleLog = "Every remaining digit set to 1.";
 						break;
 				}
-				Log("Sequence does not contain a 1. Priority: {0}. " + notContainOneRuleLog,priority+1);
+				Log("Sequence does not contain a 1. Priority: {0}. " + notContainOneRuleLog, priority + 1);
 				notContainOneRuleBool = true; //set rule as completed
 			}
 
 			//otherwise
 			else
 			{
-				switch(priority)
+				switch (priority)
 				{
 					case 0:
-						for(int i=3;i<seqLength;i+=4) //find every 4th digit
+						for (int i = 3; i < seqLength; i += 4) //find every 4th digit
 						{
 							buildSeq[i] = 4; //set to 4
 						}
 						otherwiseLog = "Every 4th digit set to 4.";
 						break;
 					case 1:
-						for(int i=2;i<seqLength;i+=3) //find every 3rd digit
+						for (int i = 2; i < seqLength; i += 3) //find every 3rd digit
 						{
-							if(buildSeq[i] == 0) //check that it's not already assigned
+							if (buildSeq[i] == 0) //check that it's not already assigned
 							{
 								buildSeq[i] = 3; //set to 3
 							}
@@ -561,9 +553,9 @@ public class badbonesScript : ModuleScript {
 						otherwiseLog = "Every 3rd digit set to 3.";
 						break;
 					case 2:
-						for(int i=1;i<seqLength;i+=2) //find every 2nd digit
+						for (int i = 1; i < seqLength; i += 2) //find every 2nd digit
 						{
-							if(buildSeq[i] == 0) //check that it's not already assigned
+							if (buildSeq[i] == 0) //check that it's not already assigned
 							{
 								buildSeq[i] = 2; //set to 2
 							}
@@ -571,9 +563,9 @@ public class badbonesScript : ModuleScript {
 						otherwiseLog = "Every 2nd digit set to 2.";
 						break;
 					case 3:
-						for(int i=0;i<seqLength;i++) //find every remaining digit
+						for (int i = 0; i < seqLength; i++) //find every remaining digit
 						{
-							if(buildSeq[i] == 0) //check that it's not already assigned
+							if (buildSeq[i] == 0) //check that it's not already assigned
 							{
 								buildSeq[i] = 1; //set to 1
 							}
@@ -581,60 +573,182 @@ public class badbonesScript : ModuleScript {
 						otherwiseLog = "Every remaining digit set to 1.";
 						break;
 				}
-				Log("No other rules apply. Priority: {0}. " + otherwiseLog,priority+1);
+				Log("No other rules apply. Priority: {0}. " + otherwiseLog, priority + 1);
 			}
 
 			//log on every iteration
-			Log("Current sequence: {0}",buildSeq.Join(""));
+			Log("Current sequence: {0}", buildSeq.Join(""));
 		}
-		
+
 		//replacements
 		Log("Replacing all digits matching 'Replace future values of X with Y' rules:");
-		for(int i=0;i<seqLength;i++)
+		for (int i = 0; i < seqLength; i++)
 		{
-			if(replaceTwos) //if we're replacing twos
+			if (replaceTwos) //if we're replacing twos
 			{
-				if(buildSeq[i] == 2)
+				if (buildSeq[i] == 2)
 				{
 					buildSeq[i] = 3;
-					Log("Replaced 2 (digit {0}) with 3",i+1);
-					Log("Current sequence: {0}",buildSeq.Join(""));
+					Log("Replaced 2 (digit {0}) with 3", i + 1);
+					Log("Current sequence: {0}", buildSeq.Join(""));
 				}
 			}
-			if(replaceThrees) //if we're replacing threes
+			if (replaceThrees) //if we're replacing threes
 			{
-				if(buildSeq[i] == 3) //yes, this can happen straight after a 2 is replaced with a 3 - 3 -> 4 takes priority
+				if (buildSeq[i] == 3) //yes, this can happen straight after a 2 is replaced with a 3 - 3 -> 4 triggers afterwards, so if both are active, 2 -> 4
 				{
 					buildSeq[i] = 4;
-					Log("Replaced 3 (digit {0}) with 4",i+1);
-					Log("Current sequence: {0}",buildSeq.Join(""));
+					Log("Replaced 3 (digit {0}) with 4", i + 1);
+					Log("Current sequence: {0}", buildSeq.Join(""));
 				}
 			}
-			if(!(replaceTwos||replaceThrees))
+			if (!(replaceTwos || replaceThrees))
 			{
-				Log("None! Current sequence: {0}",buildSeq.Join(""));
+				Log("None! Current sequence: {0}", buildSeq.Join(""));
 				break;
 			}
 		}
 
-		Log("Replacing the Bad Bone ({0}) with the Good Bone ({1}):",badBone,goodBone);
-		for(int i=0;i<seqLength;i++)
+		//sequence mods
+		buildSeq = sequenceMods(bombInfo, buildSeq);
+
+		Log("Replacing the Bad Bone ({0}) with the Good Bone ({1}):", badBone, goodBone);
+		for (int i = 0; i < seqLength; i++)
 		{
-			if(buildSeq[i] == badBone) //if value is the bad bone
+			if (buildSeq[i] == badBone) //if value is the bad bone
 			{
 				buildSeq[i] = goodBone; //replace with the good bone
-				Log("Replaced {0} (digit {1}) with {2}",badBone,i+1,goodBone);
+				Log("Replaced {0} (digit {1}) with {2}", badBone, i + 1, goodBone);
 			}
 		}
 
-		Log("Checking sequence modifiers:");
 		return buildSeq;
+	}
+
+	private int[] sequenceMods(KMBombInfo bombInfo, int[] modSeq)
+	{
+		Log("Checking sequence modifiers:");
+		//no ports
+		if (bombInfo.GetPortCount() == 0)
+		{
+			string portLog = "DEFAULT TEXT - SHOULD NOT BE VISIBLE.";
+			int count = badBone + goodBone; //preset count as being the good/bad bone values
+			for (int i = 0; i < seqLength; i++)
+			{
+				if ((modSeq[i] == goodBone) || (modSeq[i] == badBone)) //check if they're good/bad bones
+				{
+					count += 1;
+				}
+			}
+			if (count > seqLength)
+			{
+				modSeq = modSeq.Reverse();
+				portLog = "Reversing entire sequence.";
+			}
+			else
+			{
+				portLog = "No action taken.";
+			}
+			Log("No ports found. Count: [{0}+{1}+{2}={3}] {4} {5} (sequence length); " + portLog, (count - badBone - goodBone), badBone, goodBone, count, (count > seqLength) ? ">" : "<", seqLength);
+			Log("Current sequence: {0}", modSeq);
+		}
+
+		//more letters than numbers
+		if (bombInfo.GetSerialNumberLetters().Count() > bombInfo.GetSerialNumberNumbers().Count())
+		{
+			for (int i = 0; i < seqLength; i++)
+			{
+				if (IsPowerOfTwo(i + 1))
+				{
+					switch (modSeq[i])
+					{
+						case 1:
+							modSeq[i] = 4;
+							break;
+						case 2:
+							modSeq[i] = 3;
+							break;
+						case 3:
+							modSeq[i] = 2;
+							break;
+						case 4:
+							modSeq[i] = 1;
+							break;
+					}
+				}
+			}
+			Log("More letters than numbers in serial number. Replacing power of 2 positions.");
+			Log("Current sequence: {0}", modSeq);
+		}
+
+		//more than 3 batteries
+		if (bombInfo.GetBatteryCount() > 3)
+		{
+			int tempVal;
+			for (int i = 0; i < seqLength; i++)
+			{
+				if (i < 4)
+				{
+					tempVal = (modSeq[i] + 2) % 5;
+					if (tempVal == 0)
+					{
+						tempVal = goodBone;
+					}
+					modSeq[i] = tempVal;
+				}
+			}
+			Log("More than 3 batteries. Adjusting positions 1-4: add 2, modulo 5, replace 0s with Good Bone ({0}).", goodBone);
+			Log("Current sequence: {0}", modSeq);
+		}
+
+		//bad bone even
+		if (badBone % 2 == 0)
+		{
+			if (seqLength > 3)
+			{
+				int arraySize = Math.Min(seqLength - 2, 6);
+				int[] tempArray = new int[arraySize];
+				for (int i = 2; i < seqLength; i++)
+				{
+					tempArray[i - 2] = modSeq[seqLength + 2 - i]; //fill temporary array with reversed digits
+				}
+				for (int i = 2; i < seqLength; i++)
+				{
+					modSeq[i] = tempArray[i - 2]; //replace answer array with tempArray digits at same positions
+				}
+				Log("Bad Bone is even. Reversing digits 3-{0}", Math.Min(seqLength, 8));
+				Log("Current sequence: {0}", modSeq);
+			}
+		}
+
+		//BAAAAD TO THE BONE
+		if (seqLength == 5 && bonesPos[posNorth] == one && bonesPos[posEast] == two && bonesPos[posSouth] == three && bonesPos[posWest] == four)
+		{
+			modSeq = new int[5] { goodBone, goodBone, highBone, goodBone, midBone }; //
+			Log("North bone is 1 & bone order is clockwise & sequence length is 5. We're Bad to the Bone!");
+			Log("Current sequence: {0}", modSeq);
+		}
+
+		//BOB???????????
+		if (seqLength == 3 && bombInfo.IsIndicatorPresent("BOB"))
+		{
+			modSeq = new int[3] { goodBone, midBone, highBone }; //generate the smoke on the water riff
+			Log("Sequence length is 3 and Indicator BOB present. This riff sounds familiar...");
+			Log("Current sequence: {0}", modSeq);
+		}
+
+		return modSeq;
+	}
+
+	private bool IsPowerOfTwo(int x) //for use above
+	{
+		return (x & (x - 1)) == 0;
 	}
 
 	private void PlayLow()
 	{
 		switch(lowNoteCount++%3)
-        {
+		{
 			case 0:
 				PlaySound(skullPivot.transform,"boneLow1");
 				break;
@@ -644,7 +758,7 @@ public class badbonesScript : ModuleScript {
 			case 2:
 				PlaySound(skullPivot.transform,"boneLow3");
 				break;
-        }
+		}
 	}
 
 	private void PlayMiddle()
