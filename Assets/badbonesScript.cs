@@ -73,8 +73,7 @@ public class badbonesScript : ModuleScript {
 		posWest = new Vector3(-0.06f,0,0);
 		Vector3[] positions = {posNorth,posEast,posSouth,posWest};
 
-		System.Random rnd = new System.Random(); //creates the randomization
-		var order = Enumerable.Range(0,4).OrderBy(r => rnd.Next()).ToArray(); //some code i stole that creates a range of numbers and orders them randomly
+		int[] order = Enumerable.Range(0,4).ToArray().Shuffle().ToArray(); //creates a range of numbers and orders them randomly
 		//positions of the sprites
 		one.transform.localPosition = positions[order[0]];
 		two.transform.localPosition = positions[order[1]];
@@ -109,7 +108,7 @@ public class badbonesScript : ModuleScript {
 		}
 
 		//which bones each note is assigned to
-		var rndRange = Enumerable.Range(1,4).OrderBy(r => rnd.Next()).ToArray(); //Range is (startPos,numbers)
+		int[] rndRange = Enumerable.Range(1,4).ToArray().Shuffle().ToArray(); //Range is (startPos,numbers)
 		badBone = rndRange[0]; //both the same note
 		goodBone = rndRange[1]; //both the same note
 		midBone = rndRange[2];
@@ -192,8 +191,8 @@ public class badbonesScript : ModuleScript {
 		if (_isSolved) { return; } //if solved, end function immediately
 
 		ButtonEffect(reset, 1.0f, Sound.ButtonPress);
-		Log("Inputted Sequence: {0}", sequence);
-		Log("Correct Sequence: {0}", correctSeq);
+		Log("Inputted Sequence: {0}", sequence.Join(""));
+		Log("Correct Sequence: {0}", correctSeq.Join(""));
 		bool match = true;
 		if(sequence.Count != seqLength)
 		{
@@ -210,7 +209,16 @@ public class badbonesScript : ModuleScript {
 				}
 			}
 		}
-		StartCoroutine(PlayFinal(match));
+		if(sequence[0] == goodBone && sequence[1] == midBone && sequence[2] == highBone && match)
+		{
+			PlaySound("badBonesSpecial");
+			Solve("SOLVE! Correct sequence!");
+			_isSolved = true;
+		}
+		else
+		{
+			StartCoroutine(PlayFinal(match));
+		}
 	}
 
 	private void answerCheck(bool match)
@@ -278,7 +286,111 @@ public class badbonesScript : ModuleScript {
 		}
 		if(bone!=0) //if they've released it above a bone
 		{
-			Log("{0} inputted. Current input: {1}",bone,sequence);
+			Log("{0} inputted. Current input: {1}",bone,sequence.Join(""));
+		}
+	}
+
+	private void PlayLow()
+	{
+		switch(lowNoteCount++%3)
+		{
+			case 0:
+				PlaySound(skullPivot.transform,"boneLow1");
+				break;
+			case 1:
+				PlaySound(skullPivot.transform,"boneLow2");
+				break;
+			case 2:
+				PlaySound(skullPivot.transform,"boneLow3");
+				break;
+		}
+	}
+
+	private void PlayMiddle()
+	{
+		PlaySound(skullPivot.transform,"boneMid");
+	}
+
+	private void PlayHigh()
+	{
+		PlaySound(skullPivot.transform,"boneHigh");
+	}
+
+	private IEnumerator PlayFinal(bool match)
+	{
+		lowNoteCount = 0;
+		foreach(int val in sequence)
+		{
+			if(val == goodBone||val == badBone)
+			{
+				PlayLow();
+				switch(lowNoteCount++%3)
+				{
+					case 0:
+						yield return new WaitForSecondsRealtime(audioClips[2].length*0.9f);
+						break;
+					case 1:
+						yield return new WaitForSecondsRealtime(audioClips[3].length*0.9f);
+						break;
+					case 2:
+						yield return new WaitForSecondsRealtime(audioClips[4].length*0.9f);
+						break;
+				}
+			}
+			if(val == midBone)
+			{
+				PlayMiddle();
+				yield return new WaitForSecondsRealtime(audioClips[5].length*0.9f);
+			}
+			if(val == highBone)
+			{
+				PlayHigh();
+				yield return new WaitForSecondsRealtime(audioClips[1].length*0.9f);
+			}
+		}
+		PlaySound(skullPivot.transform,"boneEnd");
+		answerCheck(match);
+	}
+
+	private void PlayNote(int note)
+	{
+		if(note == goodBone||note == badBone)
+		{
+			PlayLow();
+		}
+		if(note == midBone)
+		{
+			PlayMiddle();
+		}
+		if(note == highBone)
+		{
+			PlayHigh();
+		}
+		if(note == 0)
+		{
+			Log("Default note value accessed. This is a bug.");
+			throw new Exception("DEFAULT ACCESSED");
+		}
+	}
+
+	private void PlayBad()
+	{
+		int[] badRange = Enumerable.Range(0,4).ToArray().Shuffle().ToArray();
+		int bad = badRange[0];
+		switch(bad)
+		{
+			case 0:
+				PlaySound("bad1");
+				break;
+			case 1:
+				PlaySound("bad2");
+				break;
+			case 2:
+				PlaySound("bad3");
+				break;
+			case 3:
+				PlaySound("bad4");
+				break;
 		}
 	}
 
@@ -293,9 +405,9 @@ public class badbonesScript : ModuleScript {
 		badFourRuleLog = serialRuleLog = goodPlateRuleLog = containTwoRuleLog = notContainOneRuleLog = otherwiseLog = "DEFAULT TEXT - THIS SHOULD NOT BE VISIBLE";
 
 		//pre for multiRule
-		foreach (string module in bombInfo.GetModuleNames()) //iterate over all modules
+		foreach (var module in bombInfo.GetModuleNames()) //iterate over all modules
 		{
-			if (module == "badbones") //if their name is "badbones"
+			if (module == "Bad Bones") //if their name is "badbones"
 			{
 				bbCount += 1; //add 1 to bad bone counter
 			}
@@ -303,16 +415,13 @@ public class badbonesScript : ModuleScript {
 		//pre for serialRule
 		bool vowel = false;
 		string serial = bombInfo.GetSerialNumberLetters().ToArray().Join("");
-		Log(serial);
 		var res = serial.Where(c => "AEIOU".Contains(c));
 		if (res.Any()) //check for vowels in serial number
 		{
 			vowel = true; //if there are, set the vowel bool
 		}
-		Log(vowel);
 		for (int priority = 0; priority < 4; priority++) //we have 4 priority layers
 		{
-
 			//multiple bad bones modules
 			if ((bbCount > 1) && !multiRuleBool) //if there's 2+ bad bones modules and this rule hasn't been completed before
 			{
@@ -650,7 +759,7 @@ public class badbonesScript : ModuleScript {
 				portLog = "No action taken.";
 			}
 			Log("No ports found. Count: [{0}+{1}+{2}={3}] {4} {5} (sequence length); " + portLog, (count - badBone - goodBone), badBone, goodBone, count, (count > seqLength) ? ">" : "<", seqLength);
-			Log("Current sequence: {0}", modSeq);
+			Log("Current sequence: {0}", modSeq.Join(""));
 		}
 
 		//more letters than numbers
@@ -678,7 +787,7 @@ public class badbonesScript : ModuleScript {
 				}
 			}
 			Log("More letters than numbers in serial number. Replacing power of 2 positions.");
-			Log("Current sequence: {0}", modSeq);
+			Log("Current sequence: {0}", modSeq.Join(""));
 		}
 
 		//more than 3 batteries
@@ -698,7 +807,7 @@ public class badbonesScript : ModuleScript {
 				}
 			}
 			Log("More than 3 batteries. Adjusting positions 1-4: add 2, modulo 5, replace 0s with Good Bone ({0}).", goodBone);
-			Log("Current sequence: {0}", modSeq);
+			Log("Current sequence: {0}", modSeq.Join(""));
 		}
 
 		//bad bone even
@@ -706,18 +815,18 @@ public class badbonesScript : ModuleScript {
 		{
 			if (seqLength > 3)
 			{
-				int arraySize = Math.Min(seqLength - 2, 6);
-				int[] tempArray = new int[arraySize];
-				for (int i = 2; i < seqLength; i++)
+				int startIndex = 2;
+				int endIndex = Math.Min(seqLength,8);
+				while(startIndex < endIndex)
 				{
-					tempArray[i - 2] = modSeq[seqLength + 2 - i]; //fill temporary array with reversed digits
-				}
-				for (int i = 2; i < seqLength; i++)
-				{
-					modSeq[i] = tempArray[i - 2]; //replace answer array with tempArray digits at same positions
+					int temp = modSeq[startIndex];
+					modSeq[startIndex] = modSeq[endIndex-1];
+					modSeq[endIndex-1] = temp;
+					startIndex++;
+					endIndex--;
 				}
 				Log("Bad Bone is even. Reversing digits 3-{0}", Math.Min(seqLength, 8));
-				Log("Current sequence: {0}", modSeq);
+				Log("Current sequence: {0}", modSeq.Join(""));
 			}
 		}
 
@@ -726,7 +835,7 @@ public class badbonesScript : ModuleScript {
 		{
 			modSeq = new int[5] { goodBone, goodBone, highBone, goodBone, midBone }; //
 			Log("North bone is 1 & bone order is clockwise & sequence length is 5. We're Bad to the Bone!");
-			Log("Current sequence: {0}", modSeq);
+			Log("Current sequence: {0}", modSeq.Join(""));
 		}
 
 		//BOB???????????
@@ -734,7 +843,7 @@ public class badbonesScript : ModuleScript {
 		{
 			modSeq = new int[3] { goodBone, midBone, highBone }; //generate the smoke on the water riff
 			Log("Sequence length is 3 and Indicator BOB present. This riff sounds familiar...");
-			Log("Current sequence: {0}", modSeq);
+			Log("Current sequence: {0}", modSeq.Join(""));
 		}
 
 		return modSeq;
@@ -743,111 +852,6 @@ public class badbonesScript : ModuleScript {
 	private bool IsPowerOfTwo(int x) //for use above
 	{
 		return (x & (x - 1)) == 0;
-	}
-
-	private void PlayLow()
-	{
-		switch(lowNoteCount++%3)
-		{
-			case 0:
-				PlaySound(skullPivot.transform,"boneLow1");
-				break;
-			case 1:
-				PlaySound(skullPivot.transform,"boneLow2");
-				break;
-			case 2:
-				PlaySound(skullPivot.transform,"boneLow3");
-				break;
-		}
-	}
-
-	private void PlayMiddle()
-	{
-		PlaySound(skullPivot.transform,"boneMid");
-	}
-
-	private void PlayHigh()
-	{
-		PlaySound(skullPivot.transform,"boneHigh");
-	}
-
-	private IEnumerator PlayFinal(bool match)
-	{
-		lowNoteCount = 0;
-		foreach(int val in sequence)
-		{
-			if(val == goodBone||val == badBone)
-			{
-				PlayLow();
-				switch(lowNoteCount++%3)
-				{
-					case 0:
-						yield return new WaitForSecondsRealtime(audioClips[2].length*0.9f);
-						break;
-					case 1:
-						yield return new WaitForSecondsRealtime(audioClips[3].length*0.9f);
-						break;
-					case 2:
-						yield return new WaitForSecondsRealtime(audioClips[4].length*0.9f);
-						break;
-				}
-			}
-			if(val == midBone)
-			{
-				PlayMiddle();
-				yield return new WaitForSecondsRealtime(audioClips[5].length*0.9f);
-			}
-			if(val == highBone)
-			{
-				PlayHigh();
-				yield return new WaitForSecondsRealtime(audioClips[1].length*0.9f);
-			}
-		}
-		PlaySound(skullPivot.transform,"boneEnd");
-		answerCheck(match);
-	}
-
-	private void PlayNote(int note)
-	{
-		if(note == goodBone||note == badBone)
-		{
-			PlayLow();
-		}
-		if(note == midBone)
-		{
-			PlayMiddle();
-		}
-		if(note == highBone)
-		{
-			PlayHigh();
-		}
-		if(note == 0)
-		{
-			Log("Default note value accessed. This is a bug.");
-			throw new Exception("DEFAULT ACCESSED");
-		}
-	}
-
-	private void PlayBad()
-	{
-		System.Random rnd = new System.Random(); //creates the randomization
-		int[] badRange = Enumerable.Range(0,4).OrderBy(r => rnd.Next()).ToArray();
-		int bad = badRange[0];
-		switch(bad)
-		{
-			case 0:
-				PlaySound("bad1");
-				break;
-			case 1:
-				PlaySound("bad2");
-				break;
-			case 2:
-				PlaySound("bad3");
-				break;
-			case 3:
-				PlaySound("bad4");
-				break;
-		}
 	}
 
 	// Update is called once per frame

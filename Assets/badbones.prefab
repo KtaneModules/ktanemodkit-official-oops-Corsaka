@@ -729,7 +729,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1344960431197264}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.023529995, z: 0}
+  m_LocalPosition: {x: 0, y: 0.031375, z: 0}
   m_LocalScale: {x: 0.01813081, y: 0.023908332, z: 0.01813081}
   m_Children: []
   m_Father: {fileID: 4683474883500886}
@@ -1502,7 +1502,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShaderNames:
-  - Standard
+  - Legacy Shaders/Bumped Specular
 --- !u!114 &114089232087359468
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1515,7 +1515,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShaderNames:
-  - Standard
+  - KT/Mobile/DiffuseTint
 --- !u!114 &114120288145430956
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1718,7 +1718,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShaderNames:
-  - Standard
+  - Legacy Shaders/Bumped Specular
 --- !u!114 &114519202181829070
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1780,7 +1780,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShaderNames:
-  - Standard
+  - Legacy Shaders/Bumped Specular
 --- !u!114 &114639065117096452
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1793,7 +1793,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShaderNames:
-  - Standard
+  - KT/Mobile/DiffuseTint
 --- !u!114 &114715617355711622
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1867,7 +1867,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShaderNames:
-  - Standard
+  - KT/Mobile/DiffuseTint
 --- !u!114 &114875650596747472
 MonoBehaviour:
   m_ObjectHideFlags: 1
