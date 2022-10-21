@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 public class badbonesScript : ModuleScript {
 	//system
-	private bool _isSolved = false;
+	private bool _isSolved = false,_isPlaying = false; //whether module is solved and whether it's currently playing audio
 	//module
 	private int[] correctSeq; //correct sequence of notes
 	private List<int> sequence = new List<int>(); //player's input sequence
@@ -27,10 +27,12 @@ public class badbonesScript : ModuleScript {
 	[SerializeField]
 	internal KMSelectable submit,reset; //eye selectables
 	public GameObject red,blue; //eyes
+	public Material redMat,blueMat;
 	//skull
 	[SerializeField]
 	internal KMSelectable skull; //skull selectable
 	public GameObject skullPivot; //thing that moves
+	public Material skullMat;
 	//sprites
 	public GameObject one,two,three,four; //your bones
 	//lights
@@ -40,6 +42,13 @@ public class badbonesScript : ModuleScript {
 
 	//bombgen
 	private void Start () {
+		Renderer skullRend = skull.GetComponent<Renderer>();
+		Renderer redEyeRend = red.GetComponent<Renderer>();
+		Renderer blueEyeRend = blue.GetComponent<Renderer>();
+		skullRend.material = skullMat; //hacky method of forcing materials
+		redEyeRend.material = redMat;
+		blueEyeRend.material = blueMat;
+		Log("Generation: {0} {1} {2}",skullRend.material.shader.name,redEyeRend.material.shader.name,blueEyeRend.material.shader.name);
 		//fix lighting bug
 		float scalar = transform.lossyScale.x;
 		topBlue.range *= scalar;
@@ -52,9 +61,11 @@ public class badbonesScript : ModuleScript {
 		submit.Assign(onInteract: submitSeq);
 		skull.Assign(onInteract: skullHold);
 		skull.Assign(onInteractEnded: skullRelease);
+		Log("Beginning setup:");
 		assignBones();
 		mixEyes();
 		createSeq();
+		Log("Post-Generation: {0} {1} {2}",skullRend.material.shader.name,redEyeRend.material.shader.name,blueEyeRend.material.shader.name);
 	}
 
 	private void assignBones()
@@ -88,22 +99,22 @@ public class badbonesScript : ModuleScript {
 			if(bone.transform.localPosition == posNorth)
 			{
 				bonesPos[posNorth] = bone;
-				Log("North bone: {0}",bone);
+				Log("North bone: {0}",boneConverter[bone]);
 			}
 			if(bone.transform.localPosition == posEast)
 			{
 				bonesPos[posEast] = bone;
-				Log("East bone: {0}",bone);
+				Log("East bone: {0}",boneConverter[bone]);
 			}	
 			if(bone.transform.localPosition == posSouth)
 			{
 				bonesPos[posSouth] = bone;
-				Log("South bone: {0}",bone);
+				Log("South bone: {0}",boneConverter[bone]);
 			}
 			if(bone.transform.localPosition == posWest)
 			{
 				bonesPos[posWest] = bone;
-				Log("West bone: {0}",bone);
+				Log("West bone: {0}",boneConverter[bone]);
 			}
 		}
 
@@ -183,12 +194,12 @@ public class badbonesScript : ModuleScript {
 		ButtonEffect(reset,1.0f,Sound.ButtonPress);
 		Log("Sequence reset.");
 		sequence = new List<int>(); //otherwise, clear sequence
-		PlaySound(Sound.ButtonRelease);
+		PlaySound(reset.transform,Sound.ButtonRelease);
 	}
 
 	private void submitSeq()
 	{
-		if (_isSolved) { return; } //if solved, end function immediately
+		if (_isSolved || _isPlaying) { return; } //if solved/playing audio, end function immediately
 
 		ButtonEffect(reset, 1.0f, Sound.ButtonPress);
 		Log("Inputted Sequence: {0}", sequence.Join(""));
@@ -209,14 +220,18 @@ public class badbonesScript : ModuleScript {
 				}
 			}
 		}
+
+		if(sequence.Count == 0) { return; } //please just stop throwing unhandled exceptions when i submit things
+
 		if(sequence[0] == goodBone && sequence[1] == midBone && sequence[2] == highBone && match)
 		{
-			PlaySound("badBonesSpecial");
+			PlaySound(skullPivot.transform,"badBonesSpecial");
 			Solve("SOLVE! Correct sequence!");
 			_isSolved = true;
 		}
 		else
 		{
+			_isPlaying = true;
 			StartCoroutine(PlayFinal(match));
 		}
 	}
@@ -234,6 +249,7 @@ public class badbonesScript : ModuleScript {
 			PlayBad();
 			sequence = new List<int>(); //reset sequence after strike
 		}
+		_isPlaying = false;
 	}
 
 	private void skullHold()
@@ -368,7 +384,7 @@ public class badbonesScript : ModuleScript {
 		}
 		if(note == 0)
 		{
-			Log("Default note value accessed. This is a bug.");
+			Log("Default note value accessed.",LogType.Error);
 			throw new Exception("DEFAULT ACCESSED");
 		}
 	}
@@ -380,16 +396,16 @@ public class badbonesScript : ModuleScript {
 		switch(bad)
 		{
 			case 0:
-				PlaySound("bad1");
+				PlaySound(skullPivot.transform,"bad1");
 				break;
 			case 1:
-				PlaySound("bad2");
+				PlaySound(skullPivot.transform,"bad2");
 				break;
 			case 2:
-				PlaySound("bad3");
+				PlaySound(skullPivot.transform,"bad3");
 				break;
 			case 3:
-				PlaySound("bad4");
+				PlaySound(skullPivot.transform,"bad4");
 				break;
 		}
 	}
@@ -730,6 +746,7 @@ public class badbonesScript : ModuleScript {
 				Log("Replaced {0} (digit {1}) with {2}", badBone, i + 1, goodBone);
 			}
 		}
+		Log("Done.");
 
 		return buildSeq;
 	}
@@ -846,6 +863,7 @@ public class badbonesScript : ModuleScript {
 			Log("Current sequence: {0}", modSeq.Join(""));
 		}
 
+		Log("All sequence modifiers complete.");
 		return modSeq;
 	}
 
