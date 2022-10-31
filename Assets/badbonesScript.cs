@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 public class badbonesScript : ModuleScript {
 	//system
-	private bool _isSolved = false,_isPlaying = false; //whether module is solved and whether it's currently playing audio
+	private bool _isSolved = false,_isPlaying = false,_lightsOn = false; //whether module is solved and whether it's currently playing audio
 	//module
 	private int[] correctSeq; //correct sequence of notes
 	private List<int> sequence = new List<int>(); //player's input sequence
@@ -27,12 +27,12 @@ public class badbonesScript : ModuleScript {
 	[SerializeField]
 	internal KMSelectable submit,reset; //eye selectables
 	public GameObject red,blue; //eyes
-	public Material redMat,blueMat;
+	//public Material redMat,blueMat;
 	//skull
 	[SerializeField]
 	internal KMSelectable skull; //skull selectable
 	public GameObject skullPivot; //thing that moves
-	public Material skullMat;
+	//public Material skullMat;
 	//sprites
 	public GameObject one,two,three,four; //your bones
 	//lights
@@ -42,13 +42,13 @@ public class badbonesScript : ModuleScript {
 
 	//bombgen
 	private void Start () {
-		Renderer skullRend = skull.GetComponent<Renderer>();
-		Renderer redEyeRend = red.GetComponent<Renderer>();
-		Renderer blueEyeRend = blue.GetComponent<Renderer>();
-		skullRend.material = skullMat; //hacky method of forcing materials
-		redEyeRend.material = redMat;
-		blueEyeRend.material = blueMat;
-		Log("Generation: {0} {1} {2}",skullRend.material.shader.name,redEyeRend.material.shader.name,blueEyeRend.material.shader.name);
+		//Renderer skullRend = skull.GetComponent<Renderer>();
+		//Renderer redEyeRend = red.GetComponent<Renderer>();
+		//Renderer blueEyeRend = blue.GetComponent<Renderer>();
+		//skullRend.material = skullMat; //hacky method of forcing materials
+		//redEyeRend.material = redMat;
+		//blueEyeRend.material = blueMat;
+		//Log("Generation: {0} {1} {2}",skullRend.material.shader.name,redEyeRend.material.shader.name,blueEyeRend.material.shader.name);
 		//fix lighting bug
 		float scalar = transform.lossyScale.x;
 		topBlue.range *= scalar;
@@ -65,7 +65,7 @@ public class badbonesScript : ModuleScript {
 		assignBones();
 		mixEyes();
 		createSeq();
-		Log("Post-Generation: {0} {1} {2}",skullRend.material.shader.name,redEyeRend.material.shader.name,blueEyeRend.material.shader.name);
+		//Log("Post-Generation: {0} {1} {2}",skullRend.material.shader.name,redEyeRend.material.shader.name,blueEyeRend.material.shader.name);
 	}
 
 	private void assignBones()
@@ -185,7 +185,7 @@ public class badbonesScript : ModuleScript {
 		Log("Sequence Length: {0}",seqLength);
 
 		correctSeq = seqRules(); //run the big ol rules determinator
-		Log("Correct Sequence: {0}",correctSeq);
+		Log("Correct Sequence: {0}",correctSeq.Join(""));
 	}
 
 	private void resetSeq()
@@ -202,8 +202,6 @@ public class badbonesScript : ModuleScript {
 		if (_isSolved || _isPlaying) { return; } //if solved/playing audio, end function immediately
 
 		ButtonEffect(reset, 1.0f, Sound.ButtonPress);
-		Log("Inputted Sequence: {0}", sequence.Join(""));
-		Log("Correct Sequence: {0}", correctSeq.Join(""));
 		bool match = true;
 		if(sequence.Count != seqLength)
 		{
@@ -223,6 +221,8 @@ public class badbonesScript : ModuleScript {
 
 		if(sequence.Count == 0) { return; } //please just stop throwing unhandled exceptions when i submit things
 
+		Log("Inputted Sequence: {0}", sequence.Join(""));
+		Log("Correct Sequence: {0}", correctSeq.Join(""));
 		if(sequence[0] == goodBone && sequence[1] == midBone && sequence[2] == highBone && match)
 		{
 			PlaySound(skullPivot.transform,"badBonesSpecial");
@@ -412,7 +412,7 @@ public class badbonesScript : ModuleScript {
 
 	private int[] seqRules()
 	{
-		var bombInfo = Get<KMBombInfo>(); //get cached bomb info
+		KMBombInfo bombInfo = Get<KMBombInfo>(); //get cached bomb info
 		int[] buildSeq = new int[seqLength]; //create a build sequence for use later
 		int bbCount = 0; //to count bad bones modules
 		bool multiRuleBool = false, badFourRuleBool = false, serialRuleBool = false, goodPlateRuleBool = false, containTwoRuleBool = false, notContainOneRuleBool = false; //bools for each rule
@@ -421,7 +421,7 @@ public class badbonesScript : ModuleScript {
 		badFourRuleLog = serialRuleLog = goodPlateRuleLog = containTwoRuleLog = notContainOneRuleLog = otherwiseLog = "DEFAULT TEXT - THIS SHOULD NOT BE VISIBLE";
 
 		//pre for multiRule
-		foreach (var module in bombInfo.GetModuleNames()) //iterate over all modules
+		foreach (string module in bombInfo.GetModuleNames()) //iterate over all modules
 		{
 			if (module == "Bad Bones") //if their name is "badbones"
 			{
@@ -803,7 +803,7 @@ public class badbonesScript : ModuleScript {
 					}
 				}
 			}
-			Log("More letters than numbers in serial number. Replacing power of 2 positions.");
+			Log("More letters than numbers in serial number. Replacing power of 2 positions with opposite value.");
 			Log("Current sequence: {0}", modSeq.Join(""));
 		}
 
