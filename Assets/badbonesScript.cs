@@ -7,10 +7,12 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class badbonesScript : ModuleScript {
-	//system
-	private bool _isSolved = false,_isPlaying = false,_lightsOn = false; //whether module is solved and whether it's currently playing audio
-	//module
-	private int[] correctSeq; //correct sequence of notes
+    //system
+    private global::System.Boolean _isSolved = false;
+    private global::System.Boolean _isPlaying = false;
+
+    //module
+    private int[] correctSeq; //correct sequence of notes
 	private List<int> sequence = new List<int>(); //player's input sequence
 	private int seqLength,badBone,goodBone,midBone,highBone,lowNoteCount=0; //length, note values, variations on low note
 	private bool _skullHeld = false; //whether the user is currently moving the skull
@@ -21,8 +23,8 @@ public class badbonesScript : ModuleScript {
 	private Vector2 mouseStartPos; //position of mouse, to control skull
 	private Quaternion skullStartRot; //initial rotation of skull
 	//list of primes for use in one specific function
-	//yes, this will break if you make a bomb with more than 500 modules on it and the sequence length is 0, but that's such a rare edge case that i don't care.
-	private int[] primes = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97,101,103,107,109,113,127,131,137,139,149,151,157,163,167,173,179,181,191,193,197,199,211,223,227,229,233,239,241,251,257,263,269,271,277,281,283,293,307,311,313,317,331,337,347,349,353,359,367,373,379,383,389,397,401,409,419,421,431,433,439,443,449,457,461,463,467,479,487,491,499};
+	//max prime is 54 as 999999 is maximum serial number
+	private readonly int[] primes = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53};
 	//eyes
 	[SerializeField]
 	internal KMSelectable submit,reset; //eye selectables
@@ -57,18 +59,18 @@ public class badbonesScript : ModuleScript {
 		bottomRed.range *= scalar;
 
 		skullStartRot = skullPivot.transform.localRotation;
-		reset.Assign(onInteract: resetSeq);
-		submit.Assign(onInteract: submitSeq);
-		skull.Assign(onInteract: skullHold);
-		skull.Assign(onInteractEnded: skullRelease);
+		reset.Assign(onInteract: ResetSeq);
+		submit.Assign(onInteract: SubmitSeq);
+		skull.Assign(onInteract: SkullHold);
+		skull.Assign(onInteractEnded: SkullRelease);
 		Log("Beginning setup:");
-		assignBones();
-		mixEyes();
-		createSeq();
+		AssignBones();
+		MixEyes();
+		CreateSeq();
 		//Log("Post-Generation: {0} {1} {2}",skullRend.material.shader.name,redEyeRend.material.shader.name,blueEyeRend.material.shader.name);
 	}
 
-	private void assignBones()
+	private void AssignBones()
 	{
 		//actual value of each bone
 		boneConverter = new Dictionary<GameObject,int>(){{one,1},{two,2},{three,3},{four,4}};
@@ -150,7 +152,7 @@ public class badbonesScript : ModuleScript {
 		}
 	}
 
-	private void mixEyes()
+	private void MixEyes()
 	{
 		Vector3 posLeft = new Vector3(-0.00038132f,0.00075f,0);
 		Vector3 posRight = new Vector3(0.00038132f,0.00075f,0);
@@ -163,7 +165,7 @@ public class badbonesScript : ModuleScript {
 	}
 
 	//determine sequence
-	private void createSeq()
+	private void CreateSeq()
 	{
 		string nums = "";
 		var bombInfo = Get<KMBombInfo>();
@@ -184,11 +186,11 @@ public class badbonesScript : ModuleScript {
 		}
 		Log("Sequence Length: {0}",seqLength);
 
-		correctSeq = seqRules(); //run the big ol rules determinator
+		correctSeq = SeqRules(); //run the big ol rules determinator
 		Log("Correct Sequence: {0}",correctSeq.Join(""));
 	}
 
-	private void resetSeq()
+	private void ResetSeq()
 	{
 		if(_isSolved){return;} //if solved, end function immediately
 		ButtonEffect(reset,1.0f,Sound.ButtonPress);
@@ -197,7 +199,7 @@ public class badbonesScript : ModuleScript {
 		PlaySound(reset.transform,Sound.ButtonRelease);
 	}
 
-	private void submitSeq()
+	private void SubmitSeq()
 	{
 		if (_isSolved || _isPlaying) { return; } //if solved/playing audio, end function immediately
 
@@ -236,7 +238,7 @@ public class badbonesScript : ModuleScript {
 		}
 	}
 
-	private void answerCheck(bool match)
+	private void AnswerCheck(bool match)
 	{
 		if (match) //if they match
 		{
@@ -252,14 +254,14 @@ public class badbonesScript : ModuleScript {
 		_isPlaying = false;
 	}
 
-	private void skullHold()
+	private void SkullHold()
 	{
 		//no _isSolved check as moving is fun :) (and doesn't affect anything!)
 		_skullHeld = true;
 		mouseStartPos = Input.mousePosition;
 	}
 
-	private void skullRelease()
+	private void SkullRelease()
 	{
 		_skullHeld = false;
 		if(_isSolved){return;} //if solved, end function immediately
@@ -365,7 +367,7 @@ public class badbonesScript : ModuleScript {
 			}
 		}
 		PlaySound(skullPivot.transform,"boneEnd");
-		answerCheck(match);
+		AnswerCheck(match);
 	}
 
 	private void PlayNote(int note)
@@ -410,7 +412,7 @@ public class badbonesScript : ModuleScript {
 		}
 	}
 
-	private int[] seqRules()
+	private int[] SeqRules()
 	{
 		KMBombInfo bombInfo = Get<KMBombInfo>(); //get cached bomb info
 		int[] buildSeq = new int[seqLength]; //create a build sequence for use later
@@ -484,27 +486,38 @@ public class badbonesScript : ModuleScript {
 						serialRuleLog = "Every future 2 will be set to 3.";
 						break;
 					case 1:
-						for (int i = 4; i < seqLength; i += 5) //find every 2nd digit
+						for (int i = 1; i < seqLength; i += 2) //find every 2nd digit
 						{
 							if (buildSeq[i] == 0) //check that it's not already assigned
 							{
-								buildSeq[i] = 4; //replace with a 4
+								buildSeq[i] = 3; //replace with a 3
 							}
 						}
 						serialRuleLog = "Every 2nd digit set to 3.";
 						break;
 					case 2:
-						for (int i = 1; i < seqLength; i += 2) //we can ignore i=2 because the only way to access this rule is for every 2nd digit to already be set to 2
+						if (seqLength >= 2) //does nothing if sequence length == 1; this prevents a runtime error
 						{
-							if (primes.Contains(i))
+							if (buildSeq[1] == 0)
 							{
-								if (buildSeq[i] == 0) //check that it's not already assigned
+								buildSeq[1] = 1; //replace position 2 (index 1) with a 1
+							}
+							for (int i = 2; i < seqLength; i += 2) //check every odd digit (iterate over evens)
+							{
+								if (primes.Contains(i-1)) //if checked odd digit is prime
 								{
-									buildSeq[i] = 1; //replace with a 1
+									if (buildSeq[i] == 0) //check that it's not already assigned
+									{
+										buildSeq[i] = 1; //replace with a 1
+									}
 								}
 							}
+							serialRuleLog = "All prime digits set to 1.";
 						}
-						serialRuleLog = "All prime digits set to 1.";
+						else
+						{
+							serialRuleLog = "No prime digits to set to 1.";
+						}
 						break;
 				}
 				Log("Serial contains a vowel. Priority: {0}. " + serialRuleLog, priority + 1);
@@ -735,7 +748,7 @@ public class badbonesScript : ModuleScript {
 		}
 
 		//sequence mods
-		buildSeq = sequenceMods(bombInfo, buildSeq);
+		buildSeq = SequenceMods(bombInfo, buildSeq);
 
 		Log("Replacing the Bad Bone ({0}) with the Good Bone ({1}):", badBone, goodBone);
 		for (int i = 0; i < seqLength; i++)
@@ -751,7 +764,7 @@ public class badbonesScript : ModuleScript {
 		return buildSeq;
 	}
 
-	private int[] sequenceMods(KMBombInfo bombInfo, int[] modSeq)
+	private int[] SequenceMods(KMBombInfo bombInfo, int[] modSeq)
 	{
 		Log("Checking sequence modifiers:");
 		//no ports
