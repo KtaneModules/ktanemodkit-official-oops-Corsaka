@@ -36,8 +36,10 @@ public class TPBadBonesScript : TPScript<BadBonesScript>
 
 	private IEnumerator InputParse(string seq)
 	{
-		if (seq.Any(c => c - '0' < 1 || c - '0' > 4)); //verify input is a number between 1 and 4
+		if (seq.Any(c => c - '0' < 1 || c - '0' > 4)) //verify input is a number between 1 and 4
+		{
 			{ yield return SendToChatError("Input must only contain numbers between 1 and 4."); yield break; }
+		}
 		yield return InputSequence(seq);
 	}
 	private IEnumerator ResetCommand()
