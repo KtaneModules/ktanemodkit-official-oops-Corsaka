@@ -6,35 +6,32 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
-public class badbonesScript : ModuleScript {
-    //system
-    private global::System.Boolean _isSolved = false;
-    private global::System.Boolean _isPlaying = false;
+public class BadBonesScript : ModuleScript {
+	//system
+	internal global::System.Boolean _isSolved = false;
+	private global::System.Boolean _isPlaying = false;
 
-    //module
-    private int[] correctSeq; //correct sequence of notes
+	//module
+	private int[] correctSeq; //correct sequence of notes
 	private List<int> sequence = new List<int>(); //player's input sequence
 	private int seqLength,badBone,goodBone,midBone,highBone,lowNoteCount=0; //length, note values, variations on low note
 	private bool _skullHeld = false; //whether the user is currently moving the skull
 	private Dictionary<GameObject,int> boneNotes; //dictionary assigning object to note
-	private Dictionary<Vector3,GameObject> bonesPos; //dictionary assigning position to object
-	private Dictionary<GameObject,int> boneConverter; //dictionary assigning object to value
+	internal Dictionary<Vector3,GameObject> bonesPos; //dictionary assigning position to object
+	internal Dictionary<GameObject,int> boneConverter; //dictionary assigning object to value
 	private Vector3 posNorth,posEast,posSouth,posWest; //positions of sprites
 	private Vector2 mouseStartPos; //position of mouse, to control skull
 	private Quaternion skullStartRot; //initial rotation of skull
-	//list of primes for use in one specific function
-	//max prime is 54 as 999999 is maximum serial number
+	//list of primes for use in one specific function; max prime is 53 as 999999 is maximum serial number, which sums to 54
 	private readonly int[] primes = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53};
 	//eyes
 	[SerializeField]
 	internal KMSelectable submit,reset; //eye selectables
 	public GameObject red,blue; //eyes
-	//public Material redMat,blueMat;
 	//skull
 	[SerializeField]
 	internal KMSelectable skull; //skull selectable
 	public GameObject skullPivot; //thing that moves
-	//public Material skullMat;
 	//sprites
 	public GameObject one,two,three,four; //your bones
 	//lights
@@ -44,13 +41,6 @@ public class badbonesScript : ModuleScript {
 
 	//bombgen
 	private void Start () {
-		//Renderer skullRend = skull.GetComponent<Renderer>();
-		//Renderer redEyeRend = red.GetComponent<Renderer>();
-		//Renderer blueEyeRend = blue.GetComponent<Renderer>();
-		//skullRend.material = skullMat; //hacky method of forcing materials
-		//redEyeRend.material = redMat;
-		//blueEyeRend.material = blueMat;
-		//Log("Generation: {0} {1} {2}",skullRend.material.shader.name,redEyeRend.material.shader.name,blueEyeRend.material.shader.name);
 		//fix lighting bug
 		float scalar = transform.lossyScale.x;
 		topBlue.range *= scalar;
@@ -67,7 +57,6 @@ public class badbonesScript : ModuleScript {
 		AssignBones();
 		MixEyes();
 		CreateSeq();
-		//Log("Post-Generation: {0} {1} {2}",skullRend.material.shader.name,redEyeRend.material.shader.name,blueEyeRend.material.shader.name);
 	}
 
 	private void AssignBones()
@@ -192,7 +181,7 @@ public class badbonesScript : ModuleScript {
 
 	private void ResetSeq()
 	{
-		if(_isSolved){return;} //if solved, end function immediately
+		if(_isSolved||_isPlaying){return;} //if solved/playing audio, end function immediately
 		ButtonEffect(reset,1.0f,Sound.ButtonPress);
 		Log("Sequence reset.");
 		sequence = new List<int>(); //otherwise, clear sequence
@@ -203,19 +192,19 @@ public class badbonesScript : ModuleScript {
 	{
 		if (_isSolved || _isPlaying) { return; } //if solved/playing audio, end function immediately
 
-		ButtonEffect(reset, 1.0f, Sound.ButtonPress);
-		bool match = true;
-		if(sequence.Count != seqLength)
+		ButtonEffect(reset, 1.0f, Sound.ButtonPress); //play the sound of a button press (i don't think this exists)
+		bool match = true; //assume match is true
+		if(sequence.Count != seqLength) //if the sequence is the wrong length
 		{
-			match = false;
+			match = false; //it's obviously false
 		}
 		else
 		{
-			for (int i = 0; i < sequence.Count; i++)
+			for (int i = 0; i < sequence.Count; i++) //iterate over our sequence
 			{
-				if (sequence[i] != correctSeq[i])
+				if (sequence[i] != correctSeq[i]) //if even one of them isn't correct
 				{
-					match = false;
+					match = false; //you're wrong and will be issued a strike
 					break;
 				}
 			}
@@ -225,13 +214,15 @@ public class badbonesScript : ModuleScript {
 
 		Log("Inputted Sequence: {0}", sequence.Join(""));
 		Log("Correct Sequence: {0}", correctSeq.Join(""));
-		if(sequence[0] == goodBone && sequence[1] == midBone && sequence[2] == highBone && match)
+		if(sequence[0] == goodBone && sequence[1] == midBone && sequence[2] == highBone && match) //special case
 		{
-			PlaySound(skullPivot.transform,"badBonesSpecial");
+			_isPlaying = true; //don't let player interrupt
+			PlaySound(skullPivot.transform,"badBonesSpecial"); //play the special noise :)
 			Solve("SOLVE! Correct sequence!");
 			_isSolved = true;
+			_isPlaying = false;
 		}
-		else
+		else //all other cases
 		{
 			_isPlaying = true;
 			StartCoroutine(PlayFinal(match));
@@ -265,8 +256,9 @@ public class badbonesScript : ModuleScript {
 	{
 		_skullHeld = false;
 		if(_isSolved){return;} //if solved, end function immediately
-		Quaternion skullRot = skullPivot.transform.localRotation; //get rotation
-		Vector3 eulerSkullRot = skullRot.eulerAngles; //convert rotation to something that isn't bullshit difficult to understand
+		if(_isPlaying){return;} //if playing audio, end function immediately
+		Transform skullTransform = skullPivot.transform; //get transform
+		Vector3 eulerSkullRot = skullTransform.localEulerAngles; //convert rotation to something that isn't bullshit difficult to understand
 
 		int bone = 0;
 		int note = 0;
@@ -351,7 +343,7 @@ public class badbonesScript : ModuleScript {
 						yield return new WaitForSecondsRealtime(audioClips[3].length*0.9f);
 						break;
 					case 2:
-						yield return new WaitForSecondsRealtime(audioClips[4].length*0.9f);
+						yield return new WaitForSecondsRealtime(audioClips[4].length*0.8f);
 						break;
 				}
 			}
@@ -733,7 +725,7 @@ public class badbonesScript : ModuleScript {
 			}
 			if (replaceThrees) //if we're replacing threes
 			{
-				if (buildSeq[i] == 3) //yes, this can happen straight after a 2 is replaced with a 3 - 3 -> 4 triggers afterwards, so if both are active, 2 -> 4
+				if (buildSeq[i] == 3) //yes, this can happen straight after a 2 is replaced with a 3. 3 -> 4 triggers afterwards, so if both are active, 2 -> 4
 				{
 					buildSeq[i] = 4;
 					Log("Replaced 3 (digit {0}) with 4", i + 1);
@@ -776,10 +768,10 @@ public class badbonesScript : ModuleScript {
 			{
 				if ((modSeq[i] == goodBone) || (modSeq[i] == badBone)) //check if they're good/bad bones
 				{
-					count += 1;
+					count += 1; //count total of both
 				}
 			}
-			if (count > seqLength)
+			if (count > seqLength) //if the count+goodval+badval > sequence length
 			{
 				modSeq = modSeq.Reverse();
 				portLog = "Reversing entire sequence.";
@@ -788,7 +780,7 @@ public class badbonesScript : ModuleScript {
 			{
 				portLog = "No action taken.";
 			}
-			Log("No ports found. Count: [{0}+{1}+{2}={3}] {4} {5} (sequence length); " + portLog, (count - badBone - goodBone), badBone, goodBone, count, (count > seqLength) ? ">" : "<", seqLength);
+			Log("No ports found. Count: [{0}+{1}+{2}={3}] {4} {5} (sequence length); " + portLog, count - badBone - goodBone, badBone, goodBone, count, (count > seqLength) ? ">" : "<", seqLength);
 			Log("Current sequence: {0}", modSeq.Join(""));
 		}
 
@@ -820,8 +812,8 @@ public class badbonesScript : ModuleScript {
 			Log("Current sequence: {0}", modSeq.Join(""));
 		}
 
-		//more than 3 batteries
-		if (bombInfo.GetBatteryCount() > 3)
+		//more than 2 batteries
+		if (bombInfo.GetBatteryCount() > 2)
 		{
 			int tempVal;
 			for (int i = 0; i < seqLength; i++)
@@ -836,7 +828,7 @@ public class badbonesScript : ModuleScript {
 					modSeq[i] = tempVal;
 				}
 			}
-			Log("More than 3 batteries. Adjusting positions 1-4: add 2, modulo 5, replace 0s with Good Bone ({0}).", goodBone);
+			Log("More than 2 batteries. Adjusting positions 1-4: add 2, modulo 5, replace 0s with Good Bone ({0}).", goodBone);
 			Log("Current sequence: {0}", modSeq.Join(""));
 		}
 
@@ -858,6 +850,14 @@ public class badbonesScript : ModuleScript {
 				Log("Bad Bone is even. Reversing digits 3-{0}", Math.Min(seqLength, 8));
 				Log("Current sequence: {0}", modSeq.Join(""));
 			}
+		}
+
+		//sequence length > 10
+		if (seqLength > 10)
+		{
+			modSeq[7] = 2; //B
+			modSeq[8] = 1; //A
+			modSeq[9] = 4; //D
 		}
 
 		//BAAAAD TO THE BONE
@@ -897,7 +897,7 @@ public class badbonesScript : ModuleScript {
 		{
 			float xMouse = mouseStartPos.x - Input.mousePosition.x; //mousePos x needs to be inverted - +x = left. apparently.
 			float yMouse = Input.mousePosition.y - mouseStartPos.y; //mousePos y does not - +y = up. for some reason.
-			Vector3 currentRot = new Vector3(yMouse,0,xMouse);
+			Vector3 currentRot = new Vector3(yMouse,0,xMouse); //rotation is stupid. +x is up. +z is right.
 			Vector3 clampedRot = Vector3.ClampMagnitude(currentRot,22.5f);
 			skullPivot.transform.localRotation = Quaternion.Euler(clampedRot);
 		}

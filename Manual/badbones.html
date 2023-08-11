@@ -86,7 +86,7 @@
                 <p>
                     In cases of conflict, Earlier priority rules override those with later priority
                     unless explicitly stated otherwise, and are followed first.<br>
-                    Follow 'future' rules after all other rules.
+                    Follow 'future' rules after all other rules but before Sequence Modifiers.
                 </p>
                 <table style="border:0px" width="100%">
                     <tbody>
@@ -163,7 +163,7 @@
             <div class="page-content">
                 <h3>Sequence Modifiers</h3>
                 <p>
-                    Sometimes the sequence just doesn't feel like you're the baddest to the bone.
+                    Sometimes the sequence just doesn't feel bad enough. Lucky for you, we can polish it up.
                     Apply <b>every</b> modifier where the requirements are met from <b>top</b> to <b>bottom</b>.
                 </p>
                 <table>
@@ -184,7 +184,7 @@
                             <td>Replace every 1 with a 4, every 2 with a 3, every 3 with a 2, and every 4 with a 1.</td>
                         </tr>
                         <tr>
-                            <td>- More than 3 batteries</td>
+                            <td>- More than 2 batteries</td>
                             <td>Position 1-4</td>
                             <td>Add 2 to each digit, modulo 5. Any 0s should be replaced with the value of the Good Bone.</td>
                         </tr>
@@ -192,6 +192,11 @@
                             <td>- Bad Bone is even</td>
                             <td>Position 3-8</td>
                             <td>Reverse the order of these digits.</td> 
+                        </tr>
+                        <tr>
+                            <td>- Sequence Length is greater than 10</td>
+                            <td>Position 8-10</td>
+                            <td>Replace these digits with 214.</td>
                         </tr>
                         <tr>
                             <td>- In clockwise order, starting from north, bones are ordered 1, 2, 3, 4<br>- Sequence Length 5</td>
