@@ -14,7 +14,20 @@ MonoBehaviour:
   id: badbones
   title: Bad Bones
   author: Corsaka
-  description: A skull on a gearstick stares back at you solemnly.
+  description: 'A skull on a gearstick stares back at you solemnly.
+
+
+    modID: badbones
+
+    Twitch plays is supported.
+
+    Accessibility (colorblindness/deafness) will be supported in a future update.
+
+
+    This mod features snippets of the song "Bad to the Bone" by George Thorogood and
+    the Destroyers, which has a non-zero chance of causing copyright issues - however,
+    the chance of a clip exceeding 5 seconds is astronomically low, so I don''t forsee
+    there being any problems.'
   version: 1.0
   outputFolder: build
   previewImage: {fileID: 2800000, guid: f3b173bbc01ee3c429b7d57e0b32422b, type: 3}
