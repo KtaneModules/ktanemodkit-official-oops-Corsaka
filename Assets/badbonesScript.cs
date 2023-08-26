@@ -962,6 +962,7 @@ public class BadBonesScript : ModuleScript {
 			skullPivot.transform.localRotation = Quaternion.Euler(clampedRot);
 		}
 		if(_deafMode)
+		{
 			foreach (GameObject boneObject in boneList)
 			{
 				SpriteRenderer boneRend = boneObject.GetComponent<SpriteRenderer>();
@@ -971,6 +972,7 @@ public class BadBonesScript : ModuleScript {
 					boneRend.color = new Color(redColor, 1.0f, 1.0f, 1.0f);
 				}
 			}
+		}
 
 		if(bombInfo.GetSolvedModuleNames().Count > (seqLength-1) && _sequenceZero)
 		{
