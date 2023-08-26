@@ -11,9 +11,9 @@ public class TPBadBonesScript : TPScript<BadBonesScript>
 	private Dictionary<int,GameObject> convertBones; //dictionary assigning object to value
 	public override IEnumerator ForceSolve()
 	{
-		//todo
-		SubmitCommand();
-		yield return SendToChatError("Forcesolver isn't implemented yet!");
+		Module.sequence = Module.correctSeq.ToList();
+		Module.submit.OnInteract();
+		while(!Module._isSolved) { yield return true; }
 	}
 
 	public override IEnumerator Process(string command)
@@ -26,9 +26,11 @@ public class TPBadBonesScript : TPScript<BadBonesScript>
 			yield break;
 		}
 
-		if(IsMatch(split[0],"reset")) { yield return ResetCommand(); } //reset > resetcommand
-		else if(IsMatch(split[0],"submit")) { yield return SubmitCommand(); } //submit > submitcommand
-		else //for anything that isn't these two keywords
+		if(IsMatch(split[0],"reset")) { yield return ResetCommand(); }
+		else if(IsMatch(split[0],"submit")) { yield return SubmitCommand(); }
+		else if(IsMatch(split[0],"cb")) { yield return ColorblindCommand(); }
+		else if(IsMatch(split[0],"deaf")) { yield return DeafCommand(); }
+		else //for anything that isn't these keywords
 		{
 			yield return InputParse(split[0]); //check it against the numbers-only parser
 		}
@@ -51,6 +53,19 @@ public class TPBadBonesScript : TPScript<BadBonesScript>
 	{
 		yield return null;
 		yield return new[] { Module.submit }; //click the submit button.
+	}
+	private IEnumerator ColorblindCommand()
+	{
+		yield return null;
+		Module.ColorBlindToggle();
+	}
+	private IEnumerator DeafCommand()
+	{
+		yield return null;
+		yield return new[] { Module.reset };
+		yield return new[] { Module.reset };
+		yield return new[] { Module.reset };
+		yield return new[] { Module.submit };
 	}
 	private IEnumerator InputSequence(string sequence)
 	{

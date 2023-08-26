@@ -254,6 +254,7 @@ GameObject:
   - component: {fileID: 114222404409657250}
   - component: {fileID: 114367534214243704}
   - component: {fileID: 114791202198425696}
+  - component: {fileID: 114372618955106536}
   m_Layer: 0
   m_Name: badbones
   m_TagString: Untagged
@@ -1557,6 +1558,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _editorRuleSeed: 1
+  redCBMat: {fileID: 2100000, guid: 4d2e52b83a886434699fb6deab83866d, type: 2}
+  blueCBMat: {fileID: 2100000, guid: 45a14960a89b23542ba06688a46fa17a, type: 2}
   submit: {fileID: 114387591655852296}
   reset: {fileID: 114474597606966244}
   red: {fileID: 1041016667513268}
@@ -1619,6 +1622,18 @@ MonoBehaviour:
   DelegateNames: []
   Indexes: 
   UseReturnValues: 
+--- !u!114 &114372618955106536
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1482089307383810}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1cfb889a07d5fd4e9baed7960bb397f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _colorblindMode: 0
 --- !u!114 &114387591655852296
 MonoBehaviour:
   m_ObjectHideFlags: 1

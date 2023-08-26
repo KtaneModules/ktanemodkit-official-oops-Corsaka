@@ -9,21 +9,30 @@ using System.Collections.Generic;
 public class BadBonesScript : ModuleScript {
 	//system
 	internal global::System.Boolean _isSolved = false;
-	private global::System.Boolean _isPlaying = false;
-
+	private global::System.Boolean _isPlayingAudio = false;
+	
 	//module
-	private int[] correctSeq; //correct sequence of notes
-	private List<int> sequence = new List<int>(); //player's input sequence
+	internal int[] correctSeq; //correct sequence of notes
+	internal List<int> sequence = new List<int>(); //player's input sequence
 	private int seqLength,badBone,goodBone,midBone,highBone,lowNoteCount=0; //length, note values, variations on low note
 	private bool _skullHeld = false; //whether the user is currently moving the skull
+	private bool _deafMode = false; //whether deafmode is enabled
+	private bool _sequenceZero = false; //whether sequence length equals zero
 	private Dictionary<GameObject,int> boneNotes; //dictionary assigning object to note
 	internal Dictionary<Vector3,GameObject> bonesPos; //dictionary assigning position to object
 	internal Dictionary<GameObject,int> boneConverter; //dictionary assigning object to value
 	private Vector3 posNorth,posEast,posSouth,posWest; //positions of sprites
 	private Vector2 mouseStartPos; //position of mouse, to control skull
 	private Quaternion skullStartRot; //initial rotation of skull
+	private GameObject[] boneList; //list of bones
+	private int deafCount; //for use in triggering deaf mode
 	//list of primes for use in one specific function; max prime is 53 as 999999 is maximum serial number, which sums to 54
 	private readonly int[] primes = {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53};
+
+	//component gets
+	private KMBombInfo bombInfo; //we need to check bombInfo later
+	public Material redCBMat; //red colorblind
+	public Material blueCBMat; //blue colorblind
 	//eyes
 	[SerializeField]
 	internal KMSelectable submit,reset; //eye selectables
@@ -48,6 +57,10 @@ public class BadBonesScript : ModuleScript {
 		topRed.range *= scalar;
 		bottomRed.range *= scalar;
 
+		boneList = new GameObject[]{one,two,three,four};
+		bombInfo = Get<KMBombInfo>();
+		if (Get<KMColorblindMode>().ColorblindModeActive) { ColorBlindToggle(); }
+
 		skullStartRot = skullPivot.transform.localRotation;
 		reset.Assign(onInteract: ResetSeq);
 		submit.Assign(onInteract: SubmitSeq);
@@ -59,6 +72,7 @@ public class BadBonesScript : ModuleScript {
 		CreateSeq();
 	}
 
+	//module generation
 	private void AssignBones()
 	{
 		//actual value of each bone
@@ -82,7 +96,7 @@ public class BadBonesScript : ModuleScript {
 		three.transform.localPosition = positions[order[2]];
 		four.transform.localPosition = positions[order[3]];
 		
-		GameObject[] boneList = {one,two,three,four};
+
 		foreach(GameObject bone in boneList)
 		{
 			//store them in a dictionary so they can be accurately referred to later
@@ -153,11 +167,10 @@ public class BadBonesScript : ModuleScript {
 		}
 	}
 
-	//determine sequence
+	//glorified function that just triggers other functions
 	private void CreateSeq()
 	{
 		string nums = "";
-		var bombInfo = Get<KMBombInfo>();
 		foreach(int num in bombInfo.GetSerialNumberNumbers()) //for every digit in serial number
 		{
 			seqLength += num; //add value of digit to seqLength
@@ -166,22 +179,25 @@ public class BadBonesScript : ModuleScript {
 		Log("Sequence Length: [{0}]={1}",nums.Remove(nums.Length-1,1),seqLength);
 		if(seqLength == 0) //if the sum of these digits is 0
 		{
-			seqLength++;
-			foreach(string _ in bombInfo.GetSolvedModuleNames()) //instead iterate over solved modules
-			{
-				seqLength++; //for every one, add 1 to seqLength
-			}
-			Log("Sequence Length 0! Backup Sequence Length: 1 + {0} solved modules: {1}",--seqLength,++seqLength);
+			_sequenceZero = true;
+			seqLength = 1;
+			Log("Sequence Length 0! Backup Sequence Length: 1 + solved modules.");
 		}
-		Log("Sequence Length: {0}",seqLength);
+		else
+		{
+			Log("Sequence Length: {0}",seqLength);
+		}
 
 		correctSeq = SeqRules(); //run the big ol rules determinator
 		Log("Correct Sequence: {0}",correctSeq.Join(""));
 	}
 
+	//buttons
 	private void ResetSeq()
 	{
-		if(_isSolved||_isPlaying){return;} //if solved/playing audio, end function immediately
+		
+		if (_isSolved || _isPlayingAudio) { return; } //if solved/playing audio, end function immediately
+		if (_deafMode == false) { deafCount += 1; }
 		ButtonEffect(reset,1.0f,Sound.ButtonPress);
 		Log("Sequence reset.");
 		sequence = new List<int>(); //otherwise, clear sequence
@@ -190,8 +206,14 @@ public class BadBonesScript : ModuleScript {
 
 	private void SubmitSeq()
 	{
-		if (_isSolved || _isPlaying) { return; } //if solved/playing audio, end function immediately
-
+		if (_isSolved || _isPlayingAudio) { return; } //if solved/playing audio, end function immediately
+		if (deafCount == 3 && _deafMode == false) //enable deafmode
+		{
+			Log("Deaf mode enabled.");
+			_deafMode = true;
+			DeafMode();
+		}
+		deafCount = 0;
 		ButtonEffect(reset, 1.0f, Sound.ButtonPress); //play the sound of a button press (i don't think this exists)
 		bool match = true; //assume match is true
 		if(sequence.Count != seqLength) //if the sequence is the wrong length
@@ -214,21 +236,22 @@ public class BadBonesScript : ModuleScript {
 
 		Log("Inputted Sequence: {0}", sequence.Join(""));
 		Log("Correct Sequence: {0}", correctSeq.Join(""));
-		if(sequence[0] == goodBone && sequence[1] == midBone && sequence[2] == highBone && match) //special case
+		if(sequence[0] == goodBone && sequence[1] == midBone && sequence[2] == highBone && match && seqLength == 3) //special case
 		{
-			_isPlaying = true; //don't let player interrupt
+			_isPlayingAudio = true; //don't let player interrupt
 			PlaySound(skullPivot.transform,"badBonesSpecial"); //play the special noise :)
 			Solve("SOLVE! Correct sequence!");
 			_isSolved = true;
-			_isPlaying = false;
+			_isPlayingAudio = false;
 		}
 		else //all other cases
 		{
-			_isPlaying = true;
+			_isPlayingAudio = true;
 			StartCoroutine(PlayFinal(match));
 		}
 	}
 
+	//answer validation
 	private void AnswerCheck(bool match)
 	{
 		if (match) //if they match
@@ -242,13 +265,15 @@ public class BadBonesScript : ModuleScript {
 			PlayBad();
 			sequence = new List<int>(); //reset sequence after strike
 		}
-		_isPlaying = false;
+		_isPlayingAudio = false;
 	}
 
+	//skull control
 	private void SkullHold()
 	{
 		//no _isSolved check as moving is fun :) (and doesn't affect anything!)
 		_skullHeld = true;
+		deafCount = 0;
 		mouseStartPos = Input.mousePosition;
 	}
 
@@ -256,50 +281,44 @@ public class BadBonesScript : ModuleScript {
 	{
 		_skullHeld = false;
 		if(_isSolved){return;} //if solved, end function immediately
-		if(_isPlaying){return;} //if playing audio, end function immediately
+		if(_isPlayingAudio){return;} //if playing audio, end function immediately
 		Transform skullTransform = skullPivot.transform; //get transform
 		Vector3 eulerSkullRot = skullTransform.localEulerAngles; //convert rotation to something that isn't bullshit difficult to understand
 
 		int bone = 0;
 		int note = 0;
+		GameObject boneObj;
 		if(22.6f >= eulerSkullRot.x && eulerSkullRot.x >= 17.5f) //bound is 22.6f because Clamp doesn't perfectly clamp to 22.5f
 		{
-			GameObject boneObj = bonesPos[posNorth]; //bonesPos converts position to object
-			bone = boneConverter[boneObj]; //boneConverter converts object to integer
-			sequence.Add(bone); //add this integer to the input sequence
-			note = boneNotes[boneObj]; //boneNotes converts object to note
-			PlayNote(note); //plays the note
+			boneObj = bonesPos[posNorth]; //bonesPos converts position to object
 		}
-		if(337.4f <= eulerSkullRot.x && eulerSkullRot.x <= 342.5f)
+		else if(337.4f <= eulerSkullRot.x && eulerSkullRot.x <= 342.5f)
 		{
-			GameObject boneObj = bonesPos[posSouth];
-			bone = boneConverter[boneObj];
-			sequence.Add(bone);
-			note = boneNotes[boneObj];
-			PlayNote(note);
+			boneObj = bonesPos[posSouth];
 		}
-		if(337.4f <= eulerSkullRot.z && eulerSkullRot.z <= 342.5f)
+		else if(337.4f <= eulerSkullRot.z && eulerSkullRot.z <= 342.5f)
 		{
-			GameObject boneObj = bonesPos[posEast];
-			bone = boneConverter[boneObj];
-			sequence.Add(bone);
-			note = boneNotes[boneObj];
-			PlayNote(note);
+			boneObj = bonesPos[posEast];
 		}
-		if(22.6f >= eulerSkullRot.z && eulerSkullRot.z >= 17.5f)
+		else if(22.6f >= eulerSkullRot.z && eulerSkullRot.z >= 17.5f)
 		{
-			GameObject boneObj = bonesPos[posWest];
-			bone = boneConverter[boneObj];
-			sequence.Add(bone);
-			note = boneNotes[boneObj];
-			PlayNote(note);
+			boneObj = bonesPos[posWest];
 		}
+		else {return;}
+
+		bone = boneConverter[boneObj]; //boneConverter converts object to integer
+		sequence.Add(bone); //add this integer to the input sequence
+		note = boneNotes[boneObj]; //boneNotes converts object to note
+		PlayNote(note); //plays the note
+		if (_deafMode) { boneObj.GetComponent<SpriteRenderer>().color = Color.cyan; } //if deaf change colour
+
 		if(bone!=0) //if they've released it above a bone
 		{
 			Log("{0} inputted. Current input: {1}",bone,sequence.Join(""));
 		}
 	}
 
+	//note players
 	private void PlayLow()
 	{
 		switch(lowNoteCount++%3)
@@ -404,6 +423,45 @@ public class BadBonesScript : ModuleScript {
 		}
 	}
 
+	//accessibility functions
+	internal void DeafMode()
+	{
+		bool alreadySet = true; //for aiding randomisation
+		if (UnityEngine.Random.value < 0.5) { alreadySet = false; } //half of the time set it false
+		foreach (GameObject bone in boneList) //iterate list
+		{
+			if (boneNotes[bone] == goodBone || boneNotes[bone] == badBone) //if it's a good or bad bone
+			{
+				if (alreadySet) { BonePosUpdate(bone,posNorth); alreadySet = false; } //update north and toggle alreadySet
+				else { BonePosUpdate(bone,posSouth); alreadySet = true; } //update south and toggle alreadySet
+			}
+		}
+	}
+
+	private void BonePosUpdate(GameObject chosenBone,Vector3 vertPos) //for use in func above
+	{
+		GameObject vertBone = bonesPos[vertPos]; //find the north bone
+		Vector3 posOrig = chosenBone.transform.localPosition; //get original bone's position
+		if (vertBone != chosenBone) //if they're not the same
+		{
+			chosenBone.transform.localPosition = vertPos; //set original to north
+			vertBone.transform.localPosition = posOrig; //set north to original
+			bonesPos[vertPos] = chosenBone; //update them in the dictionary
+			bonesPos[posOrig] = vertBone; //so things aren't fucked
+			Log("Bone {0} ({1}) swapped position with bone {2}.",boneNotes[chosenBone],boneNotes[chosenBone]==goodBone?"Good Bone":"Bad Bone",boneNotes[vertBone]);
+		} //if they are the same, ignore it
+	}
+
+	internal void ColorBlindToggle()
+	{
+		Renderer redRend = red.GetComponent<Renderer>();
+		redRend.material = redCBMat;
+		Renderer blueRend = blue.GetComponent<Renderer>();
+		blueRend.material = blueCBMat;
+		Log("Colorblind mode enabled.");
+	}
+
+	//sequence determination
 	private int[] SeqRules()
 	{
 		KMBombInfo bombInfo = Get<KMBombInfo>(); //get cached bomb info
@@ -858,6 +916,8 @@ public class BadBonesScript : ModuleScript {
 			modSeq[7] = 2; //B
 			modSeq[8] = 1; //A
 			modSeq[9] = 4; //D
+			Log("Sequence length exceeds 10. Replacing digits 8, 9, and 10 with 2, 1, and 4 respectively.");
+			Log("Current sequence: {0}", modSeq.Join(""));
 		}
 
 		//BAAAAD TO THE BONE
@@ -880,7 +940,7 @@ public class BadBonesScript : ModuleScript {
 		return modSeq;
 	}
 
-	private bool IsPowerOfTwo(int x) //for use above
+	private bool IsPowerOfTwo(int x) //for use in func above
 	{
 		return (x & (x - 1)) == 0;
 	}
@@ -891,7 +951,7 @@ public class BadBonesScript : ModuleScript {
 		if(!_skullHeld && !(skullRot == skullStartRot))
 		{
 			//return skull to center
-			skullPivot.transform.localRotation = Quaternion.Lerp(skullRot,skullStartRot,20.0f*Time.deltaTime);
+			skullPivot.transform.localRotation = Quaternion.Lerp(skullRot,skullStartRot,0.66f);
 		}
 		if(_skullHeld)
 		{
@@ -900,6 +960,23 @@ public class BadBonesScript : ModuleScript {
 			Vector3 currentRot = new Vector3(yMouse,0,xMouse); //rotation is stupid. +x is up. +z is right.
 			Vector3 clampedRot = Vector3.ClampMagnitude(currentRot,22.5f);
 			skullPivot.transform.localRotation = Quaternion.Euler(clampedRot);
+		}
+		if(_deafMode)
+			foreach (GameObject boneObject in boneList)
+			{
+				SpriteRenderer boneRend = boneObject.GetComponent<SpriteRenderer>();
+				if (boneRend.color != Color.white)
+				{
+					float redColor = boneRend.color.r + 0.04f;
+					boneRend.color = new Color(redColor, 1.0f, 1.0f, 1.0f);
+				}
+			}
+
+		if(bombInfo.GetSolvedModuleNames().Count > (seqLength-1) && _sequenceZero)
+		{
+			seqLength++;
+			correctSeq = SeqRules(); //run the big ol rules determinator
+			Log("Correct Sequence: {0}",correctSeq.Join(""));
 		}
 	}
 }

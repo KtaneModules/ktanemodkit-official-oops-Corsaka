@@ -1,23 +1,25 @@
-﻿<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="initial-scale=1">
-        <title>Bad Bones — Keep Talking and Nobody Explodes Module</title>
-        <link rel="stylesheet" type="text/css" href="css/font.css">
-        <link rel="stylesheet" type="text/css" href="css/normalize.css">
-        <link rel="stylesheet" type="text/css" href="css/main.css">
-        <script src="js/ktane-utils.js"></script><script src="../HTML/js/jquery.3.7.0.min.js"></script>
-        <style>
-            .dark table, table {
-                margin: 1em auto;
-                border: none;
-            }
-    
-            .page-footer::before { content: 'Page '; }
-            .page-footer::after { content: ' of 3'; }
-        </style>
-    </head>
+﻿<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1">
+    <title>Bad Bones — Keep Talking and Nobody Explodes Module</title>
+    <link rel="stylesheet" type="text/css" href="css/font.css">
+    <link rel="stylesheet" type="text/css" href="css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <script src="js/ktane-utils.js"></script>
+    <script src="../HTML/js/jquery.3.7.0.min.js"></script>
+    <style>
+        .dark table, table {
+            margin: 1em auto;
+            border: none;
+        }
+        .page-footer::before { content: 'Page '; }
+        .page-footer::after { content: ' of 3'; }
+    </style>
+    <link
+        href="data:text/css,%5Bid*%3D'google_ads_iframe'%5D%2C%5Bid*%3D'taboola-'%5D%2C.taboolaHeight%2C.taboola-placeholder%2C%23credential_picker_container%2C%23credentials-picker-container%2C%23credential_picker_iframe%2C%5Bid*%3D'google-one-tap-iframe'%5D%2C%23google-one-tap-popup-container%2C.google-one-tap-modal-div%2C%23amp_floatingAdDiv%2C%23ez-content-blocker-container%2C%23notify-adblock%7Bdisplay%3Anone!important%3Bmin-height%3A0!important%3Bheight%3A0!important%3B%7D"
+        rel="stylesheet" type="text/css">
+</head>
 <body>
     <div class="section">
         <div class="page page-bg-01">
@@ -29,6 +31,7 @@
                 <img src="img/Component/Bad Bones.svg" class="diagram">
                 <h2>On the Subject of Bad Bones</h2>
                 <p class="flavour-text">A skull on a gearstick stares back at you ominously.</p>
+
 
                 <p>
                     This module consists of a metallic skull with one blue and
@@ -42,9 +45,10 @@
                 <p>
                     To input a value, drag the skull to the relevant set of bones and release it above
                     them. A noise will play corresponding to that set of bones. If no noise plays, the
-                    input was not submitted.<!--<br>
+                    input was not submitted.<br>
                     A deaf version of this module can be accessed by pressing the red eye <b>three</b> times,
-                    then the blue eye once. An alternative manual is available for this version.-->
+                    then the blue eye once. This will move the Good and Bad Bones to the
+                    north/south positions and flash the relevant sprite when an input is submitted.
                 </p>
                 <p>
                     Both eyes can be pressed. The blue eye will submit the current sequence of
@@ -89,25 +93,32 @@
                     Move down the table, stopping at the <b>first</b> condition that matches. Follow the
                     first priority rule for this condition.<br>
                     Repeat the process, <b>ignoring</b> any conditions that have been fulfilled before
-                    (excluding "Otherwise"), following the next priority rule for each condition.
+                    (excluding ‘Otherwise’), following the next priority rule for each condition.
                 </p>
                 <p>
                     In cases of conflict, earlier priority rules override those with later priority
                     unless explicitly stated otherwise, and are followed first.<br>
-                    Follow 'future' rules after all other rules but before Sequence Modifiers.
+                    Follow ‘future’ rules after all other rules but before Sequence Modifiers.
                 </p>
-                <table style="border:0px">
+                <table>
+                    <colgroup>
+                        <col>
+                        <col>
+                        <col width="20%">
+                        <col width="20%">
+                        <col width="20%">
+                    </colgroup>
                     <tbody>
                         <tr>
-                            <td style="border:0px"></td>
+                            <td class="corner"></td>
                             <th colspan="4">Priority</th>
                         </tr>
                         <tr>
                             <th>Condition</th>
                             <th>First</th>
-                            <th style="width:18%">Second</th>
-                            <th style="width:19%">Third</th>
-                            <th style="width:20%">Fourth</th>
+                            <th>Second</th>
+                            <th>Third</th>
+                            <th>Fourth</th>
                         </tr>
                         <tr>
                             <th>Multiple Bad Bones modules on the bomb</th>
@@ -132,7 +143,7 @@
                         </tr>
                         <tr>
                             <th>The Good Bone value exceeds the number of port plates</th>
-                            <td>Repeat "3124" until end of sequence</td>
+                            <td>Repeat “3124” until end of sequence</td>
                             <td>Every odd digit is a 1</td>
                             <td>Every 4th digit is a 2</td>
                             <td>Every remaining digit is the value of the Good Bone</td>
@@ -171,7 +182,7 @@
             <div class="page-content">
                 <h3>Sequence Modifiers</h3>
                 <p>
-                    Sometimes the bones just doesn't feel bad enough. Lucky for you, we can polish it up.
+                    Sometimes the bones just don’t feel bad enough. Lucky for you, we can polish it up.
                     Apply <b>every</b> modifier where the requirements are met from <b>top</b> to <b>bottom</b>.
                 </p>
                 <table>
@@ -182,47 +193,87 @@
                             <th>Action Taken</th>
                         </tr>
                         <tr>
-                            <td>- No ports present</td>
+                            <td>— No ports present</td>
                             <td>Good and Bad Bone digits</td>
-                            <td>Count how many of these there are. Add the values of the Good and Bad Bones. If this exceeds the sequence length, reverse the entire sequence.</td>
+                            <td>Count how many of these there are. Add the values of the Good and Bad Bones. If this
+                                exceeds the sequence length, reverse the entire sequence.</td>
                         </tr>
                         <tr>
-                            <td>- More letters than numbers in serial number</td>
+                            <td>— More letters than numbers in serial number</td>
                             <td>Every Position that is a power of two (1,2,4,8,16...)</td>
                             <td>Replace every 1 with a 4, every 2 with a 3, every 3 with a 2, and every 4 with a 1.</td>
                         </tr>
                         <tr>
-                            <td>- More than 2 batteries</td>
+                            <td>— More than 2 batteries</td>
                             <td>Position 1-4</td>
-                            <td>Add 2 to each digit, modulo 5. Any 0s should be replaced with the value of the Good Bone.</td>
+                            <td>Add 2 to each digit, modulo 5. Any 0s should be replaced with the value of the Good
+                                Bone.</td>
                         </tr>
                         <tr>
-                            <td>- Bad Bone is even</td>
+                            <td>— Bad Bone is even</td>
                             <td>Position 3-8</td>
-                            <td>Reverse the order of these digits.</td> 
+                            <td>Reverse the order of these digits.</td>
                         </tr>
                         <tr>
-                            <td>- Sequence Length is greater than 10</td>
+                            <td>— Sequence Length is greater than 10</td>
                             <td>Position 8-10</td>
                             <td>Replace these digits with 214.</td>
                         </tr>
                         <tr>
-                            <td>- In clockwise order, starting from north, bones are ordered 1, 2, 3, 4<br>- Sequence Length 5</td>
+                            <td>— In clockwise order, starting from north, bones are ordered 1, 2, 3, 4<br>— Sequence
+                                Length 5</td>
                             <td>Entire Sequence</td>
-                            <td>Play the first five notes of the Bad to the Bone riff (low, low, high, low, middle).</td>
+                            <td>Play the first five notes of the Bad to the Bone riff (low, low, high, low, middle).
+                            </td>
                         </tr>
                         <tr>
-                            <td>- BOB Indicator Present<br>- Sequence Length 3</td>
+                            <td>— BOB indicator present<br>— Sequence Length 3</td>
                             <td>Entire Sequence</td>
                             <td>
-                                Disregard the entire sequence. Instead, submit a sequence of the lowest note, the middle note, then the highest note.<br>
-                                Pat yourself on the back for figuring out what you've just played.
+                                Disregard the entire sequence. Instead, submit a sequence of the lowest note, the middle
+                                note, then the highest note.<br>
+                                Pat yourself on the back for figuring out what you’ve just played.
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
             <div class="page-footer relative-footer">3</div>
+        </div>
+    </div>
+
+    <div id="notification" style="display: none;"></div>
+    <div id="optionsMenu">
+        <h2>Options (Alt-O)</h2>
+        <div class="option-group">
+            <h3>Highlighter</h3>
+            <div><input type="checkbox" id="highlighter-enabled">&nbsp;<label for="highlighter-enabled"
+                    accesskey="h">Enabled</label> (Alt-H)</div>
+            <div>Color: <select id="highlighter-color">
+                    <option value="0">Gray</option>
+                    <option value="1" selected="selected">Blue</option>
+                    <option value="2">Red</option>
+                    <option value="3">Green</option>
+                    <option value="4">Yellow</option>
+                    <option value="5">Magenta</option>
+                    <option value="6">Orange</option>
+                    <option value="7">Cyan</option>
+                    <option value="8">White</option>
+                    <option value="9">Black</option>
+                </select> (Alt-<span id="highlighter-color-index">1</span>)</div>
+            <div>Highlights: <button id="clear-highlights" accesskey="c">Clear</button> (Alt-C)</div>
+        </div>
+        <div class="option-group">
+            <h3>Page layout</h3>
+            <div><input type="radio" name="page-layout" class="page-layout" id="page-layout-vertical">&nbsp;<label
+                    for="page-layout-vertical" accesskey="v"><kbd>V</kbd>ertical</label></div>
+            <div><input type="radio" name="page-layout" class="page-layout" id="page-layout-side-by-side">&nbsp;<label
+                    for="page-layout-side-by-side" accesskey="s"><kbd>S</kbd>ide by side</label></div>
+        </div>
+        <div class="option-group">
+            <h3>Dark Mode</h3>
+            <div><input type="checkbox" id="dark-mode-enabled">&nbsp;<label for="dark-mode-enabled">Enabled</label>
+                (Alt-W)</div>
         </div>
     </div>
 </body>
