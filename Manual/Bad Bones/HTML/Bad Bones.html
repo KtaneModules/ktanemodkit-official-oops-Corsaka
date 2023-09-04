@@ -1,4 +1,5 @@
-﻿<html>
+﻿<!DOCTYPE html>
+<html>
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1">
@@ -16,9 +17,6 @@
         .page-footer::before { content: 'Page '; }
         .page-footer::after { content: ' of 3'; }
     </style>
-    <link
-        href="data:text/css,%5Bid*%3D'google_ads_iframe'%5D%2C%5Bid*%3D'taboola-'%5D%2C.taboolaHeight%2C.taboola-placeholder%2C%23credential_picker_container%2C%23credentials-picker-container%2C%23credential_picker_iframe%2C%5Bid*%3D'google-one-tap-iframe'%5D%2C%23google-one-tap-popup-container%2C.google-one-tap-modal-div%2C%23amp_floatingAdDiv%2C%23ez-content-blocker-container%2C%23notify-adblock%7Bdisplay%3Anone!important%3Bmin-height%3A0!important%3Bheight%3A0!important%3B%7D"
-        rel="stylesheet" type="text/css">
 </head>
 <body>
     <div class="section">
@@ -31,8 +29,6 @@
                 <img src="img/Component/Bad Bones.svg" class="diagram">
                 <h2>On the Subject of Bad Bones</h2>
                 <p class="flavour-text">A skull on a gearstick stares back at you ominously.</p>
-
-
                 <p>
                     This module consists of a metallic skull with one blue and
                     one red eye attached to a gearstick, as well as four sets of
@@ -104,9 +100,9 @@
                     <colgroup>
                         <col>
                         <col>
-                        <col width="20%">
-                        <col width="20%">
-                        <col width="20%">
+                        <col style="width:20%">
+                        <col style="width:20%">
+                        <col style="width:20%">
                     </colgroup>
                     <tbody>
                         <tr>
@@ -239,41 +235,6 @@
                 </table>
             </div>
             <div class="page-footer relative-footer">3</div>
-        </div>
-    </div>
-
-    <div id="notification" style="display: none;"></div>
-    <div id="optionsMenu">
-        <h2>Options (Alt-O)</h2>
-        <div class="option-group">
-            <h3>Highlighter</h3>
-            <div><input type="checkbox" id="highlighter-enabled">&nbsp;<label for="highlighter-enabled"
-                    accesskey="h">Enabled</label> (Alt-H)</div>
-            <div>Color: <select id="highlighter-color">
-                    <option value="0">Gray</option>
-                    <option value="1" selected="selected">Blue</option>
-                    <option value="2">Red</option>
-                    <option value="3">Green</option>
-                    <option value="4">Yellow</option>
-                    <option value="5">Magenta</option>
-                    <option value="6">Orange</option>
-                    <option value="7">Cyan</option>
-                    <option value="8">White</option>
-                    <option value="9">Black</option>
-                </select> (Alt-<span id="highlighter-color-index">1</span>)</div>
-            <div>Highlights: <button id="clear-highlights" accesskey="c">Clear</button> (Alt-C)</div>
-        </div>
-        <div class="option-group">
-            <h3>Page layout</h3>
-            <div><input type="radio" name="page-layout" class="page-layout" id="page-layout-vertical">&nbsp;<label
-                    for="page-layout-vertical" accesskey="v"><kbd>V</kbd>ertical</label></div>
-            <div><input type="radio" name="page-layout" class="page-layout" id="page-layout-side-by-side">&nbsp;<label
-                    for="page-layout-side-by-side" accesskey="s"><kbd>S</kbd>ide by side</label></div>
-        </div>
-        <div class="option-group">
-            <h3>Dark Mode</h3>
-            <div><input type="checkbox" id="dark-mode-enabled">&nbsp;<label for="dark-mode-enabled">Enabled</label>
-                (Alt-W)</div>
         </div>
     </div>
 </body>
